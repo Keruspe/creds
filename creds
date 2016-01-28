@@ -368,7 +368,11 @@ creds_tree() {
     local full_path="${CREDS_DIR}/${path}"
 
     if [[ -d "${full_path}" ]]; then
-        echo "${CREDS_TOP_LABEL}/${path}"
+        if [[ -z "${path}" ]]; then
+            echo "${CREDS_TOP_LABEL}"
+        else
+            echo "${CREDS_TOP_LABEL}/${path}"
+        fi
         tree -l -C --noreport "${full_path}" | sed '1d'
     else
         creds_die_help 1
