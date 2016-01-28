@@ -12,6 +12,15 @@ readonly CREDS_TOP_LABEL="Credentials"
 
 readonly CREDS_GPG_ARGS=( --batch -q --yes --no-encrypt-to --compress-algo=bzip2 )
 
+creds_die() {
+    local ret="${1}"
+
+    shift
+
+    echo "${*}" >&2
+    exit "${ret}"
+}
+
 creds_ensure_creds_dirs() {
     mkdir -p "${CREDS_DIR}"
     mkdir -p "${CREDS_CONFIG_DIR}"
@@ -25,18 +34,17 @@ creds_ensure_file_not_empty() {
 
 creds_ensure_gpg_id() {
     if ! creds_ensure_file_not_empty "${CREDS_GPG_ID}"; then
-        echo "No gpg-id configured, please set one using '${CREDS_BIN} gpg-id XXXXXXXX' where XXXXXXXX is your gpg id." >&2
-        exit 1
+        creds_die 1 "No gpg-id configured, please set one using '${CREDS_BIN} gpg-id XXXXXXXX' where XXXXXXXX is your gpg id."
     fi
 }
 
 creds_version() {
-    echo "${CREDS_BIN} version ${CREDS_VERSION}" >&2
+    echo "${CREDS_BIN} version ${CREDS_VERSION}"
 }
 
 creds_help() {
     creds_version
-    cat >&2 <<EOF
+    cat <<EOF
 Usage:
     ${CREDS_BIN} [show] <name> -- Display a tree of credentials saved under <name>/ or get the credential named <name>
     ${CREDS_BIN} tree <name>   -- Display a tree of credentials saved under <name>/
@@ -49,14 +57,19 @@ Usage:
 EOF
 }
 
+creds_die_help() {
+    local ret="${1}"
+
+    creds_die "${ret}" "$(creds_help)"
+}
+
 creds_ensure_enough_args() {
     local nb="${1}"
 
     shift
 
     if [[ "${#}" -lt "${nb}" ]]; then
-        creds_help
-        exit 1
+        creds_die_help 1
     fi
 }
 
@@ -85,8 +98,7 @@ creds_get_gpg_bin() {
         fi
     done
 
-    echo "Neither of ${bins[*]} found on your system, aborting" >&2
-    exit 1
+    creds_die 1 "Neither of ${bins[*]} found on your system, aborting"
 }
 
 creds_run_gpg() {
@@ -181,7 +193,7 @@ creds_get() {
 
         creds_give_credentials "${name}" "$(echo "${credentials}" | sed -n '1p')" "$(echo "${credentials}" | sed '1d')"
     else
-        creds_help
+        creds_die_help 1
     fi
 }
 
@@ -194,7 +206,7 @@ creds_gpg_id() {
             echo "${1}" > "${CREDS_GPG_ID}"
             ;;
         *)
-            creds_help
+            creds_die_help 1
             ;;
     esac
 }
@@ -207,7 +219,7 @@ creds_tree() {
         echo "${CREDS_TOP_LABEL}/${path}"
         tree -l -C --noreport "${full_path}" | sed '1d'
     else
-        creds_help
+        creds_die_help 1
     fi
 }
 
