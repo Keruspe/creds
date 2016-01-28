@@ -21,6 +21,10 @@ creds_die() {
     exit "${ret}"
 }
 
+creds_abort() {
+    creds_die 0 "Aborting"
+}
+
 creds_version() {
     echo "${CREDS_BIN} version ${CREDS_VERSION}"
 }
@@ -29,15 +33,18 @@ creds_help() {
     creds_version
     cat <<EOF
 Usage:
-    ${CREDS_BIN} [show] <name> -- Display a tree of credentials saved under <name>/ or get the credential named <name>
-    ${CREDS_BIN} tree <name>   -- Display a tree of credentials saved under <name>/
-    ${CREDS_BIN} add <name>    -- Add new credentials named <name>
-    ${CREDS_BIN} edit <name>   -- Edit existing credentials named <name>
-    ${CREDS_BIN} get <name>    -- Get the credentials named <name>
-    ${CREDS_BIN} git ...       -- Run some git commands in the credentials data directory
-    ${CREDS_BIN} gpg-id [id]   -- Display the configure gpg-id to use or set it
-    ${CREDS_BIN} version       -- Display the version number
-    ${CREDS_BIN} help          -- Display this message
+    ${CREDS_BIN} [show] <name>   -- Display a tree of credentials saved under <name>/ or get the credential named <name>
+    ${CREDS_BIN} tree <name>     -- Display a tree of credentials saved under <name>/
+    ${CREDS_BIN} add <name>      -- Add new credentials named <name>
+    ${CREDS_BIN} edit <name>     -- Edit existing credentials named <name>
+    ${CREDS_BIN} rm <name>       -- Delete existing credentials named <name>
+    ${CREDS_BIN} cp <name> <new> -- Copy existing credentials named <name> as <new>
+    ${CREDS_BIN} mv <name> <new> -- Rename existing credentials named <name> as <new>
+    ${CREDS_BIN} get <name>      -- Get the credentials named <name>
+    ${CREDS_BIN} git ...         -- Run some git commands in the credentials data directory
+    ${CREDS_BIN} gpg-id [id]     -- Display the configure gpg-id to use or set it
+    ${CREDS_BIN} version         -- Display the version number
+    ${CREDS_BIN} help            -- Display this message
 EOF
 }
 
@@ -195,14 +202,20 @@ creds_ask() {
     [[ "${ans}" == "y" ]]
 }
 
+creds_check_override() {
+    local name="${1}"
+
+    if creds_check_exists "${name}"; then
+        creds_ask "${name} already exists, do you want to override it?" || creds_abort
+    fi
+}
+
 creds_add() {
     creds_ensure_enough_args 1 "${@}"
 
     local name="${1}"
 
-    if creds_check_exists "${name}"; then
-        creds_ask "${name} already exists, do you want to override it?" || creds_die 0 "Aborting"
-    fi
+    creds_check_override "${name}"
 
     creds_write_credentials "Add" "${@}"
 }
@@ -215,6 +228,59 @@ creds_edit() {
     creds_ensure_exists "${name}"
 
     creds_write_credentials "Edit" "${@}"
+}
+
+creds_rm() {
+    creds_ensure_enough_args 1 "${@}"
+
+    local name="${1}"
+
+    creds_ensure_exists "${name}"
+
+    creds_ask "Do you really want to delete ${name}?" || creds_abort
+
+    if creds_has_git; then
+        creds_git rm "${name}"
+        creds_git commit -m "Remove ${name}"
+    else
+        rm "${CREDS_DIR}/${name}"
+    fi
+}
+
+creds_cp() {
+    creds_ensure_enough_args 2 "${@}"
+
+    local name="${1}"
+    local new="${2}"
+
+    creds_ensure_exists "${name}"
+
+    creds_check_override "${new}"
+
+    cp "${CREDS_DIR}/${name}" "${CREDS_DIR}/${new}"
+
+    if creds_has_git; then
+        creds_git add "${new}"
+        creds_git commit -m "Add ${new} (copy from ${name})"
+    fi
+}
+
+creds_mv() {
+    creds_ensure_enough_args 2 "${@}"
+
+    local name="${1}"
+    local new="${2}"
+
+    creds_ensure_exists "${name}"
+
+    creds_check_override "${new}"
+
+    if creds_has_git; then
+        creds_git mv "${name}" "${new}"
+        creds_git commit -m "Rename ${name} to ${new}"
+    else
+        mv "${CREDS_DIR}/${name}" "${CREDS_DIR}/${new}"
+    fi
 }
 
 creds_give_credentials() {
@@ -304,6 +370,15 @@ creds_main() {
             ;;
         edit)
             creds_edit "${@}"
+            ;;
+        rm)
+            creds_rm "${@}"
+            ;;
+        cp)
+            creds_cp "${@}"
+            ;;
+        mv)
+            creds_mv "${@}"
             ;;
         get)
             creds_get "${@}"

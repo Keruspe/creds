@@ -2,8 +2,5 @@ subcommands:
     find
     grep
     generate
-    rm
-    mv
-    cp
 completions
 raw mode for add
