@@ -16,7 +16,7 @@ creds_ensure_creds_dirs() {
 }
 
 creds_ensure_gpg_id() {
-    if [[ ! -s "${CREDS_GPG_ID}" ]]; then
+    if [[ ! -f "${CREDS_GPG_ID}" || ! -s "${CREDS_GPG_ID}" ]]; then
         echo "No gpg-id configured, please set one using '${CREDS_BIN} gpg-id XXXXXXXX' where XXXXXXXX is your gpg id." >&2
         exit 1
     fi
@@ -30,12 +30,13 @@ creds_help() {
     creds_version
     cat >&2 <<EOF
 Usage:
-    ${CREDS_BIN} [show|tree]       -- Display a tree of saved credentials
-    ${CREDS_BIN} add <name>        -- Add a new credentials named <name>
-    ${CREDS_BIN} get <name>        -- Get the credentials named <name>
-    ${CREDS_BIN} gpg-id [id]       -- Display the configure gpg-id to use or set it
-    ${CREDS_BIN} version           -- Display the version number
-    ${CREDS_BIN} help              -- Display this message
+    ${CREDS_BIN} [show] <name> -- Display a tree of credentials saved under <name>/ or get the credential named <name>
+    ${CREDS_BIN} tree <name>   -- Display a tree of credentials saved under <name>/
+    ${CREDS_BIN} add <name>    -- Add a new credentials named <name>
+    ${CREDS_BIN} get <name>    -- Get the credentials named <name>
+    ${CREDS_BIN} gpg-id [id]   -- Display the configure gpg-id to use or set it
+    ${CREDS_BIN} version       -- Display the version number
+    ${CREDS_BIN} help          -- Display this message
 EOF
 }
 
@@ -126,7 +127,7 @@ creds_get() {
     local username
     local password
 
-    if [[ -s "${file}" ]]; then
+    if [[ -f "${file}" && -s "${file}" ]]; then
         credentials="$(creds_run_gpg -d "${file}")"
         username="$(echo "${credentials}" | sed -n '1p')"
         password="$(echo "${credentials}" | sed '1d')"
@@ -151,9 +152,27 @@ creds_gpg_id() {
     esac
 }
 
+creds_tree() {
+    local path="${1:-""}"
+    local full_path="${CREDS_DIR}/${path}"
+
+    if [[ -d "${full_path}" ]]; then
+        echo "${CREDS_TOP_LABEL}/${path}"
+        tree -l -C --noreport "${full_path}" | sed '1d'
+    else
+        creds_help
+    fi
+}
+
 creds_show() {
-    echo "${CREDS_TOP_LABEL}"
-    tree -l -C --noreport "${CREDS_DIR}" | sed '1d'
+    local path="${1:-""}"
+    local full_path="${CREDS_DIR}/${path}"
+
+    if [[ -f "${full_path}" && -s "${full_path}" ]]; then
+        creds_get "${path}"
+    else
+        creds_tree "${path}"
+    fi
 }
 
 creds_main() {
@@ -177,11 +196,14 @@ creds_main() {
         gpg-id)
             creds_gpg_id "${@}"
             ;;
-        show|tree)
-            creds_show
+        tree)
+            creds_tree "${@}"
+            ;;
+        show)
+            creds_show "${@}"
             ;;
         *)
-            creds_get "${cmd}"
+            creds_show "${cmd}"
             ;;
     esac
 }
@@ -191,7 +213,7 @@ main() {
 
     case "${#}" in
         0)
-            creds_show
+            creds_tree
             ;;
         *)
             creds_main "${@}"
