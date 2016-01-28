@@ -5,10 +5,20 @@ set -euo pipefail
 readonly CREDS_VERSION="0"
 
 readonly CREDS_BIN="${0##*/}"
-readonly CREDS_DIR="${XDG_DATA_DIR:-"${HOME}/.local/share"}/creds"
+readonly CREDS_DIR="${XDG_DATA_HOME:-"${HOME}/.local/share"}/creds"
+readonly CREDS_CONFIG_DIR="${XDG_CONFIG_HOME:-"${HOME}/.config"}/creds"
+readonly CREDS_GPG_ID="${CREDS_CONFIG_DIR}/gpg-id"
 
-ensure_creds_dir() {
+ensure_creds_dirs() {
     mkdir -p "${CREDS_DIR}"
+    mkdir -p "${CREDS_CONFIG_DIR}"
+}
+
+ensure_gpg_id() {
+    if [[ ! -s "${CREDS_GPG_ID}" ]]; then
+        echo "No gpg-id configured, please set one using '${CREDS_BIN} gpg-id XXXXXXXX' where XXXXXXXX is your gpg id." >&2
+        exit 1
+    fi
 }
 
 creds_version() {
@@ -20,9 +30,82 @@ creds_help() {
     cat >&2 <<EOF
 Usage:
     ${CREDS_BIN} [show|tree]       -- Display a tree of saved credentials
+    ${CREDS_BIN} add <name>        -- Add a new password named <name>
+    ${CREDS_BIN} gpg-id [id]       -- Display the configure gpg-id to use or set it
     ${CREDS_BIN} version           -- Display the version number
     ${CREDS_BIN} help              -- Display this message
 EOF
+}
+
+ensure_enough_args() {
+    local nb="${1}"
+
+    shift
+
+    if [[ "${#}" -lt "${nb}" ]]; then
+        creds_help
+        exit 1
+    fi
+}
+
+creds_get_gpg_id() {
+    ensure_gpg_id
+    cat -v "${CREDS_GPG_ID}"
+}
+
+creds_get_gpg_bin() {
+    local bins=(
+        gpg2
+        gpg
+    )
+    local b
+
+    for b in "${bins[@]}"; do
+        if which "${b}" &>/dev/null; then
+            echo "${b}"
+            return
+        fi
+    done
+
+    echo "Neither of ${bins[*]} found on your system, aborting" >&2
+    exit 1
+}
+
+creds_run_gpg() {
+    "$(creds_get_gpg_bin)" --batch -q --yes --no-encrypt-to --compress-algo=bzip2 "${@}"
+}
+
+creds_add() {
+    ensure_enough_args 1 "${@}"
+
+    local name="${1}"
+    local file="${CREDS_DIR}/${name}"
+    local username
+    local password
+
+    read -r -p "Username: " username
+    read -r -p "Password: " -s password
+    echo
+
+    mkdir -p "${file%/*}"
+    creds_run_gpg -e -r "$(creds_get_gpg_id)" -o "${file}" <<EOF
+${username}
+${password}
+EOF
+}
+
+creds_gpg_id() {
+    case "${#}" in
+        0)
+            creds_get_gpg_id
+            ;;
+        1)
+            echo "${1}" > "${CREDS_GPG_ID}"
+            ;;
+        *)
+            creds_help
+            ;;
+    esac
 }
 
 creds_show() {
@@ -36,14 +119,20 @@ creds_main() {
     shift
 
     case "${cmd}" in
+        version|--version|-v)
+            creds_version
+            ;;
         help|--help|-h)
             creds_help
             ;;
+        add)
+            creds_add "${@}"
+            ;;
+        gpg-id)
+            creds_gpg_id "${@}"
+            ;;
         show|tree)
             creds_show
-            ;;
-        version|--version|-v)
-            creds_version
             ;;
         *)
             creds_help
@@ -52,7 +141,7 @@ creds_main() {
 }
 
 main() {
-    ensure_creds_dir
+    ensure_creds_dirs
 
     case "${#}" in
         0)
