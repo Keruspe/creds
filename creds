@@ -220,22 +220,24 @@ creds_add() {
     creds_write_credentials "Add" "${@}"
 }
 
-creds_edit() {
+creds_simple_operation_checks() {
     creds_ensure_enough_args 1 "${@}"
 
     local name="${1}"
 
     creds_ensure_exists "${name}"
+}
+
+creds_edit() {
+    creds_simple_operation_checks "${@}"
 
     creds_write_credentials "Edit" "${@}"
 }
 
 creds_rm() {
-    creds_ensure_enough_args 1 "${@}"
+    creds_simple_operation_checks "${@}"
 
     local name="${1}"
-
-    creds_ensure_exists "${name}"
 
     creds_ask "Do you really want to delete ${name}?" || creds_abort
 
@@ -247,7 +249,7 @@ creds_rm() {
     fi
 }
 
-creds_cp() {
+creds_two_files_operation_checks() {
     creds_ensure_enough_args 2 "${@}"
 
     local name="${1}"
@@ -256,6 +258,13 @@ creds_cp() {
     creds_ensure_exists "${name}"
 
     creds_check_override "${new}"
+}
+
+creds_cp() {
+    creds_two_files_operation_checks "${@}"
+
+    local name="${1}"
+    local new="${2}"
 
     cp "${CREDS_DIR}/${name}" "${CREDS_DIR}/${new}"
 
@@ -266,14 +275,10 @@ creds_cp() {
 }
 
 creds_mv() {
-    creds_ensure_enough_args 2 "${@}"
+    creds_two_files_operation_checks "${@}"
 
     local name="${1}"
     local new="${2}"
-
-    creds_ensure_exists "${name}"
-
-    creds_check_override "${new}"
 
     if creds_has_git; then
         creds_git mv "${name}" "${new}"
@@ -299,15 +304,13 @@ creds_give_credentials() {
 }
 
 creds_get() {
-    creds_ensure_enough_args 1 "${@}"
+    creds_simple_operation_checks "${@}"
 
     local name="${1}"
     local file="${CREDS_DIR}/${name}"
     local credentials
     local username
     local password
-
-    creds_ensure_exists "${name}"
 
     credentials="$(creds_run_gpg -d "${file}")"
     username="$(echo "${credentials}" | sed -n '1p')"
