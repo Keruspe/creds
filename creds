@@ -15,8 +15,14 @@ creds_ensure_creds_dirs() {
     mkdir -p "${CREDS_CONFIG_DIR}"
 }
 
+creds_ensure_file_not_empty() {
+    local file="${1}"
+
+    [[ -f "${file}" && -s "${file}" ]]
+}
+
 creds_ensure_gpg_id() {
-    if [[ ! -f "${CREDS_GPG_ID}" || ! -s "${CREDS_GPG_ID}" ]]; then
+    if ! creds_ensure_file_not_empty "${CREDS_GPG_ID}"; then
         echo "No gpg-id configured, please set one using '${CREDS_BIN} gpg-id XXXXXXXX' where XXXXXXXX is your gpg id." >&2
         exit 1
     fi
@@ -89,15 +95,18 @@ creds_add() {
 
     local name="${1}"
     local file="${CREDS_DIR}/${name}"
+    local gpg_id
     local username
     local password
+
+    gpg_id="$(creds_get_gpg_id)"
 
     read -r -p "Username: " username
     read -r -p "Password: " -s password
     echo
 
     mkdir -p "${file%/*}"
-    creds_run_gpg -e -r "$(creds_get_gpg_id)" -o "${file}" <<EOF
+    creds_run_gpg -e -r "${gpg_id}" -o "${file}" <<EOF
 ${username}
 ${password}
 EOF
@@ -127,7 +136,7 @@ creds_get() {
     local username
     local password
 
-    if [[ -f "${file}" && -s "${file}" ]]; then
+    if creds_ensure_file_not_empty "${file}"; then
         credentials="$(creds_run_gpg -d "${file}")"
         username="$(echo "${credentials}" | sed -n '1p')"
         password="$(echo "${credentials}" | sed '1d')"
@@ -168,7 +177,7 @@ creds_show() {
     local path="${1:-""}"
     local full_path="${CREDS_DIR}/${path}"
 
-    if [[ -f "${full_path}" && -s "${full_path}" ]]; then
+    if creds_ensure_file_not_empty "${full_path}"; then
         creds_get "${path}"
     else
         creds_tree "${path}"
