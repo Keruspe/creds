@@ -1,0 +1,67 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+readonly CREDS_VERSION="0"
+
+readonly CREDS_BIN="${0##*/}"
+readonly CREDS_DIR="${XDG_DATA_DIR:-"${HOME}/.local/share"}/creds"
+
+ensure_creds_dir() {
+    mkdir -p "${CREDS_DIR}"
+}
+
+creds_version() {
+    echo "${CREDS_BIN} version ${CREDS_VERSION}" >&2
+}
+
+creds_help() {
+    creds_version
+    cat >&2 <<EOF
+Usage:
+    ${CREDS_BIN} [show|tree]       -- Display a tree of saved credentials
+    ${CREDS_BIN} version           -- Display the version number
+    ${CREDS_BIN} help              -- Display this message
+EOF
+}
+
+creds_show() {
+    creds_version
+    tree -l -C --noreport "${CREDS_DIR}" | sed '1d'
+}
+
+creds_main() {
+    local cmd="${1}"
+
+    shift
+
+    case "${cmd}" in
+        help|--help|-h)
+            creds_help
+            ;;
+        show|tree)
+            creds_show
+            ;;
+        version|--version|-v)
+            creds_version
+            ;;
+        *)
+            creds_help
+            ;;
+    esac
+}
+
+main() {
+    ensure_creds_dir
+
+    case "${#}" in
+        0)
+            creds_show
+            ;;
+        *)
+            creds_main "${@}"
+            ;;
+    esac
+}
+
+main "${@}"
