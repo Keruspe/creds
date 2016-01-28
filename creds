@@ -8,13 +8,14 @@ readonly CREDS_BIN="${0##*/}"
 readonly CREDS_DIR="${XDG_DATA_HOME:-"${HOME}/.local/share"}/creds"
 readonly CREDS_CONFIG_DIR="${XDG_CONFIG_HOME:-"${HOME}/.config"}/creds"
 readonly CREDS_GPG_ID="${CREDS_CONFIG_DIR}/gpg-id"
+readonly CREDS_TOP_LABEL="Credentials"
 
-ensure_creds_dirs() {
+creds_ensure_creds_dirs() {
     mkdir -p "${CREDS_DIR}"
     mkdir -p "${CREDS_CONFIG_DIR}"
 }
 
-ensure_gpg_id() {
+creds_ensure_gpg_id() {
     if [[ ! -s "${CREDS_GPG_ID}" ]]; then
         echo "No gpg-id configured, please set one using '${CREDS_BIN} gpg-id XXXXXXXX' where XXXXXXXX is your gpg id." >&2
         exit 1
@@ -37,7 +38,7 @@ Usage:
 EOF
 }
 
-ensure_enough_args() {
+creds_ensure_enough_args() {
     local nb="${1}"
 
     shift
@@ -49,7 +50,7 @@ ensure_enough_args() {
 }
 
 creds_get_gpg_id() {
-    ensure_gpg_id
+    creds_ensure_gpg_id
     cat -v "${CREDS_GPG_ID}"
 }
 
@@ -76,7 +77,7 @@ creds_run_gpg() {
 }
 
 creds_add() {
-    ensure_enough_args 1 "${@}"
+    creds_ensure_enough_args 1 "${@}"
 
     local name="${1}"
     local file="${CREDS_DIR}/${name}"
@@ -109,7 +110,7 @@ creds_gpg_id() {
 }
 
 creds_show() {
-    creds_version
+    echo "${CREDS_TOP_LABEL}"
     tree -l -C --noreport "${CREDS_DIR}" | sed '1d'
 }
 
@@ -141,7 +142,7 @@ creds_main() {
 }
 
 main() {
-    ensure_creds_dirs
+    creds_ensure_creds_dirs
 
     case "${#}" in
         0)
