@@ -31,7 +31,8 @@ creds_help() {
     cat >&2 <<EOF
 Usage:
     ${CREDS_BIN} [show|tree]       -- Display a tree of saved credentials
-    ${CREDS_BIN} add <name>        -- Add a new password named <name>
+    ${CREDS_BIN} add <name>        -- Add a new credentials named <name>
+    ${CREDS_BIN} get <name>        -- Get the credentials named <name>
     ${CREDS_BIN} gpg-id [id]       -- Display the configure gpg-id to use or set it
     ${CREDS_BIN} version           -- Display the version number
     ${CREDS_BIN} help              -- Display this message
@@ -54,16 +55,22 @@ creds_get_gpg_id() {
     cat -v "${CREDS_GPG_ID}"
 }
 
+creds_has_bin() {
+    local bin="${1}"
+
+    which "${1}" &>/dev/null
+}
+
 creds_get_gpg_bin() {
     local bins=(
         gpg2
         gpg
     )
-    local b
+    local bin
 
-    for b in "${bins[@]}"; do
-        if which "${b}" &>/dev/null; then
-            echo "${b}"
+    for bin in "${bins[@]}"; do
+        if creds_has_bin "${bin}"; then
+            echo "${bin}"
             return
         fi
     done
@@ -93,6 +100,41 @@ creds_add() {
 ${username}
 ${password}
 EOF
+}
+
+creds_give_credentials() {
+    local name="${1}"
+    local username="${2}"
+    local password="${3}"
+
+    if creds_has_bin "gpaste-client"; then
+        # Make sure we use the builtin echo not to leak the password via /proc
+        builtin echo "${password}" | gpaste-client add-password "${name}"
+        echo "${username}" | gpaste-client
+    else
+        echo "Username: '${username}'"
+        builtin echo "Password: '${password}'"
+    fi
+}
+
+creds_get() {
+    creds_ensure_enough_args 1 "${@}"
+
+    local name="${1}"
+    local file="${CREDS_DIR}/${name}"
+    local credentials
+    local username
+    local password
+
+    if [[ -s "${file}" ]]; then
+        credentials="$(creds_run_gpg -d "${file}")"
+        username="$(echo "${credentials}" | sed -n '1p')"
+        password="$(echo "${credentials}" | sed '1d')"
+
+        creds_give_credentials "${name}" "$(echo "${credentials}" | sed -n '1p')" "$(echo "${credentials}" | sed '1d')"
+    else
+        creds_help
+    fi
 }
 
 creds_gpg_id() {
@@ -129,6 +171,9 @@ creds_main() {
         add)
             creds_add "${@}"
             ;;
+        get)
+            creds_get "${@}"
+            ;;
         gpg-id)
             creds_gpg_id "${@}"
             ;;
@@ -136,7 +181,7 @@ creds_main() {
             creds_show
             ;;
         *)
-            creds_help
+            creds_get "${cmd}"
             ;;
     esac
 }
