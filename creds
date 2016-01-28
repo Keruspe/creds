@@ -58,6 +58,13 @@ creds_check_file_not_empty() {
     [[ -f "${file}" && -s "${file}" ]]
 }
 
+creds_check_exists() {
+    local name="${1}"
+    local file="${CREDS_DIR}/${name}"
+
+    creds_check_file_not_empty "${file}"
+}
+
 creds_ensure_file_not_empty() {
     local file="${1}"
 
@@ -66,9 +73,8 @@ creds_ensure_file_not_empty() {
 
 creds_ensure_exists() {
     local name="${1}"
-    local file="${CREDS_DIR}/${name}"
 
-    creds_ensure_file_not_empty "${file}"
+    creds_check_exists "${name}" || creds_die_help 1
 }
 
 creds_ensure_gpg_id() {
@@ -178,10 +184,26 @@ EOF
     fi
 }
 
+creds_ask() {
+    local question="${1}"
+    local ans=""
+
+    while [[ ${ans,,} != "y" && ${ans,,} != "n" ]]; do
+        read -r -p "${question} [y/n] " ans
+    done
+
+    [[ "${ans}" == "y" ]]
+}
+
 creds_add() {
     creds_ensure_enough_args 1 "${@}"
 
-    # TODO: ask before overriding
+    local name="${1}"
+
+    if creds_check_exists "${name}"; then
+        creds_ask "${name} already exists, do you want to override it?" || creds_die 0 "Aborting"
+    fi
+
     creds_write_credentials "Add" "${@}"
 }
 

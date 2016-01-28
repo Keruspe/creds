@@ -5,6 +5,5 @@ subcommands:
     rm
     mv
     cp
-ask before overriding in add
 completions
 raw mode for add
