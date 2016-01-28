@@ -21,23 +21,6 @@ creds_die() {
     exit "${ret}"
 }
 
-creds_ensure_creds_dirs() {
-    mkdir -p "${CREDS_DIR}"
-    mkdir -p "${CREDS_CONFIG_DIR}"
-}
-
-creds_ensure_file_not_empty() {
-    local file="${1}"
-
-    [[ -f "${file}" && -s "${file}" ]]
-}
-
-creds_ensure_gpg_id() {
-    if ! creds_ensure_file_not_empty "${CREDS_GPG_ID}"; then
-        creds_die 1 "No gpg-id configured, please set one using '${CREDS_BIN} gpg-id XXXXXXXX' where XXXXXXXX is your gpg id."
-    fi
-}
-
 creds_version() {
     echo "${CREDS_BIN} version ${CREDS_VERSION}"
 }
@@ -62,6 +45,29 @@ creds_die_help() {
     local ret="${1}"
 
     creds_die "${ret}" "$(creds_help)"
+}
+
+creds_ensure_creds_dirs() {
+    mkdir -p "${CREDS_DIR}"
+    mkdir -p "${CREDS_CONFIG_DIR}"
+}
+
+creds_check_file_not_empty() {
+    local file="${1}"
+
+    [[ -f "${file}" && -s "${file}" ]]
+}
+
+creds_ensure_file_not_empty() {
+    local file="${1}"
+
+    creds_check_file_not_empty "${file}" || creds_die_help 1
+}
+
+creds_ensure_gpg_id() {
+    if ! creds_check_file_not_empty "${CREDS_GPG_ID}"; then
+        creds_die 1 "No gpg-id configured, please set one using '${CREDS_BIN} gpg-id XXXXXXXX' where XXXXXXXX is your gpg id."
+    fi
 }
 
 creds_ensure_enough_args() {
@@ -203,15 +209,13 @@ creds_get() {
     local username
     local password
 
-    if creds_ensure_file_not_empty "${file}"; then
-        credentials="$(creds_run_gpg -d "${file}")"
-        username="$(echo "${credentials}" | sed -n '1p')"
-        password="$(echo "${credentials}" | sed '1d')"
+    creds_ensure_file_not_empty "${file}"
 
-        creds_give_credentials "${name}" "$(echo "${credentials}" | sed -n '1p')" "$(echo "${credentials}" | sed '1d')"
-    else
-        creds_die_help 1
-    fi
+    credentials="$(creds_run_gpg -d "${file}")"
+    username="$(echo "${credentials}" | sed -n '1p')"
+    password="$(echo "${credentials}" | sed '1d')"
+
+    creds_give_credentials "${name}" "$(echo "${credentials}" | sed -n '1p')" "$(echo "${credentials}" | sed '1d')"
 }
 
 creds_gpg_id() {
@@ -244,7 +248,7 @@ creds_show() {
     local path="${1:-""}"
     local full_path="${CREDS_DIR}/${path}"
 
-    if creds_ensure_file_not_empty "${full_path}"; then
+    if creds_check_file_not_empty "${full_path}"; then
         creds_get "${path}"
     else
         creds_tree "${path}"
