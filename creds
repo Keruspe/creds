@@ -10,6 +10,8 @@ readonly CREDS_CONFIG_DIR="${XDG_CONFIG_HOME:-"${HOME}/.config"}/creds"
 readonly CREDS_GPG_ID="${CREDS_CONFIG_DIR}/gpg-id"
 readonly CREDS_TOP_LABEL="Credentials"
 
+readonly CREDS_GPG_ARGS=( --batch -q --yes --no-encrypt-to --compress-algo=bzip2 )
+
 creds_ensure_creds_dirs() {
     mkdir -p "${CREDS_DIR}"
     mkdir -p "${CREDS_CONFIG_DIR}"
@@ -40,6 +42,7 @@ Usage:
     ${CREDS_BIN} tree <name>   -- Display a tree of credentials saved under <name>/
     ${CREDS_BIN} add <name>    -- Add a new credentials named <name>
     ${CREDS_BIN} get <name>    -- Get the credentials named <name>
+    ${CREDS_BIN} git ...       -- Run some git commands in the credentials data directory
     ${CREDS_BIN} gpg-id [id]   -- Display the configure gpg-id to use or set it
     ${CREDS_BIN} version       -- Display the version number
     ${CREDS_BIN} help          -- Display this message
@@ -87,7 +90,7 @@ creds_get_gpg_bin() {
 }
 
 creds_run_gpg() {
-    "$(creds_get_gpg_bin)" --batch -q --yes --no-encrypt-to --compress-algo=bzip2 "${@}"
+    "$(creds_get_gpg_bin)" "${CREDS_GPG_ARGS[@]}" "${@}"
 }
 
 creds_add() {
@@ -147,6 +150,32 @@ creds_get() {
     fi
 }
 
+creds_git() {
+    creds_ensure_enough_args 1 "${@}"
+
+    local cmd="${1}"
+
+    pushd "${CREDS_DIR}" &>/dev/null
+
+    case "${cmd}" in
+        init)
+            git "${@}"
+            git config --local diff.creds.textconv "$(creds_get_gpg_bin) ${CREDS_GPG_ARGS[*]} -d"
+            cat > ".gitattributes" <<EOF
+* diff=creds
+.gitattributes -diff
+EOF
+            git add .
+            git commit -m "Initial commit"
+            ;;
+        *)
+            git "${@}"
+            ;;
+    esac
+
+    popd &>/dev/null
+}
+
 creds_gpg_id() {
     case "${#}" in
         0)
@@ -201,6 +230,9 @@ creds_main() {
             ;;
         get)
             creds_get "${@}"
+            ;;
+        git)
+            creds_git "${@}"
             ;;
         gpg-id)
             creds_gpg_id "${@}"

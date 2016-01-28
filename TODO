@@ -6,7 +6,6 @@ subcommands:
     rm
     mv
     cp
-    git
 ask before overriding in add
 completions
 raw mode for add
