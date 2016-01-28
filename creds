@@ -82,7 +82,7 @@ creds_ensure_file_not_empty() {
 creds_ensure_exists() {
     local name="${1}"
 
-    creds_check_exists "${name}" || creds_die_help 1
+    creds_check_exists "${name}" || creds_die 1 "${name} doesn't exist"
 }
 
 creds_ensure_gpg_id() {
