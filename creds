@@ -66,11 +66,16 @@ creds_check_file_not_empty() {
     [[ -f "${file}" && -s "${file}" ]]
 }
 
+creds_file() {
+    local name="${1}"
+
+    echo "${CREDS_DIR}/${name}.creds"
+}
+
 creds_check_exists() {
     local name="${1}"
-    local file="${CREDS_DIR}/${name}"
 
-    creds_check_file_not_empty "${file}"
+    creds_check_file_not_empty "$(creds_file "${name}")"
 }
 
 creds_ensure_file_not_empty() {
@@ -149,8 +154,7 @@ creds_git() {
             git "${@}"
             git config --local diff.creds.textconv "$(creds_get_gpg_bin) ${CREDS_GPG_ARGS[*]} -d"
             cat > ".gitattributes" <<EOF
-* diff=creds
-.gitattributes -diff
+*.creds diff=creds
 EOF
             git add .
             git commit -m "Initial commit"
@@ -173,7 +177,7 @@ creds_write_credentials() {
 
     shift
 
-    local file="${CREDS_DIR}/${name}"
+    local file="$(creds_file "${name}")"
     local gpg_id
     local username
     local password
@@ -195,7 +199,7 @@ ${password}
 EOF
 
     if creds_has_git; then
-        creds_git add "${name}"
+        creds_git add "${name}.creds"
         creds_git commit -m "${action} ${name}"
     fi
 }
@@ -216,10 +220,10 @@ creds_do_rm() {
     local commit="${2}"
 
     if creds_has_git; then
-        creds_git rm "${name}"
+        creds_git rm "${name}.creds"
         [[ "${commit}" != "y" ]] || creds_git commit -m "Remove ${name}"
     else
-        rm "${CREDS_DIR}/${name}"
+        rm "$(creds_file "${name}")"
     fi
 }
 
@@ -296,10 +300,10 @@ creds_cp() {
     local name="${1}"
     local new="${2}"
 
-    cp "${CREDS_DIR}/${name}" "${CREDS_DIR}/${new}"
+    cp "$(creds_file "${name}")" "$(creds_file "${new}")"
 
     if creds_has_git; then
-        creds_git add "${new}"
+        creds_git add "${new}.creds"
         creds_git commit -m "Add ${new} (copy from ${name})"
     fi
 }
@@ -311,10 +315,10 @@ creds_mv() {
     local new="${2}"
 
     if creds_has_git; then
-        creds_git mv "${name}" "${new}"
+        creds_git mv "${name}.creds" "${new}.creds"
         creds_git commit -m "Rename ${name} to ${new}"
     else
-        mv "${CREDS_DIR}/${name}" "${CREDS_DIR}/${new}"
+        mv "$(creds_file "${name}")" "$(creds_file "${new}")"
     fi
 }
 
@@ -337,12 +341,11 @@ creds_get() {
     creds_simple_operation_checks "${@}"
 
     local name="${1}"
-    local file="${CREDS_DIR}/${name}"
     local credentials
     local username
     local password
 
-    credentials="$(creds_run_gpg -d "${file}")"
+    credentials="$(creds_run_gpg -d "$(creds_file "${name}")")"
     username="$(echo "${credentials}" | sed -n '1p')"
     password="$(echo "${credentials}" | sed '1d')"
 
@@ -373,20 +376,19 @@ creds_tree() {
         else
             echo "${CREDS_TOP_LABEL}/${path}"
         fi
-        tree -l -C --noreport "${full_path}" | sed '1d'
+        tree -l -C --noreport "${full_path}" | sed -e '1d' -e 's/.creds//'
     else
         creds_die_help 1
     fi
 }
 
 creds_show() {
-    local path="${1:-""}"
-    local full_path="${CREDS_DIR}/${path}"
+    local name="${1:-""}"
 
-    if creds_check_file_not_empty "${full_path}"; then
-        creds_get "${path}"
+    if creds_check_file_not_empty "$(creds_file "${name}")"; then
+        creds_get "${name}"
     else
-        creds_tree "${path}"
+        creds_tree "${name}"
     fi
 }
 
