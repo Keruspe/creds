@@ -48,7 +48,8 @@ creds_help() {
 Usage:
     ${CREDS_BIN} [show] <name> -- Display a tree of credentials saved under <name>/ or get the credential named <name>
     ${CREDS_BIN} tree <name>   -- Display a tree of credentials saved under <name>/
-    ${CREDS_BIN} add <name>    -- Add a new credentials named <name>
+    ${CREDS_BIN} add <name>    -- Add new credentials named <name>
+    ${CREDS_BIN} edit <name>   -- Edit existing credentials named <name>
     ${CREDS_BIN} get <name>    -- Get the credentials named <name>
     ${CREDS_BIN} git ...       -- Run some git commands in the credentials data directory
     ${CREDS_BIN} gpg-id [id]   -- Display the configure gpg-id to use or set it
@@ -135,8 +136,10 @@ EOF
     popd &>/dev/null
 }
 
-creds_add() {
-    creds_ensure_enough_args 1 "${@}"
+creds_write_credentials() {
+    local action="${1}"
+
+    shift
 
     local name="${1}"
     local file="${CREDS_DIR}/${name}"
@@ -158,8 +161,22 @@ EOF
 
     if creds_has_git; then
         creds_git add "${name}"
-        creds_git commit -m "Add ${name}"
+        creds_git commit -m "${action} ${name}"
     fi
+}
+
+creds_add() {
+    creds_ensure_enough_args 1 "${@}"
+
+    # TODO: ask before overriding
+    creds_write_credentials "Add" "${@}"
+}
+
+creds_edit() {
+    creds_ensure_enough_args 1 "${@}"
+
+    # TODO: creds_die_help if doesn't exist
+    creds_write_credentials "Edit" "${@}"
 }
 
 creds_give_credentials() {
@@ -248,6 +265,9 @@ creds_main() {
             ;;
         add)
             creds_add "${@}"
+            ;;
+        edit)
+            creds_edit "${@}"
             ;;
         get)
             creds_get "${@}"

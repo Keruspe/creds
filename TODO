@@ -1,7 +1,6 @@
 subcommands:
     find
     grep
-    edit
     generate
     rm
     mv
