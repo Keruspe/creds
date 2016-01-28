@@ -181,7 +181,11 @@ creds_add() {
 creds_edit() {
     creds_ensure_enough_args 1 "${@}"
 
-    # TODO: creds_die_help if doesn't exist
+    local name="${1}"
+    local file="${CREDS_DIR}/${name}"
+
+    creds_ensure_file_not_empty "${file}"
+
     creds_write_credentials "Edit" "${@}"
 }
 
