@@ -1,0 +1,13 @@
+subcommands:
+    find
+    grep
+    edit
+    generate
+    rm
+    mv
+    cp
+    git
+ask before overriding in add
+completions
+raw mode for add
+allow empty user/password
