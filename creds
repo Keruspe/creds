@@ -157,11 +157,11 @@ creds_give_credentials() {
 
     if creds_has_bin "gpaste-client"; then
         # Make sure we use the builtin echo not to leak the password via /proc
-        builtin echo "${password}" | gpaste-client add-password "${name}"
-        echo "${username}" | gpaste-client
+        [[ -z "${password}" ]] || builtin echo "${password}" | gpaste-client add-password "${name}"
+        [[ -z "${username}" ]] || echo "${username}" | gpaste-client
     else
-        echo "Username: '${username}'"
-        builtin echo "Password: '${password}'"
+        [[ -z "${username}" ]] || echo "Username: '${username}'"
+        [[ -z "${password}" ]] || builtin echo "Password: '${password}'"
     fi
 }
 
