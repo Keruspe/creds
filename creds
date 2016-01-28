@@ -55,7 +55,7 @@ creds_die_help() {
     creds_die "${ret}" "$(creds_help)"
 }
 
-creds_ensure_creds_dirs() {
+creds_ensure_dirs() {
     mkdir -p "${CREDS_DIR}"
     mkdir -p "${CREDS_CONFIG_DIR}"
 }
@@ -392,10 +392,12 @@ creds_show() {
     fi
 }
 
-creds_main() {
-    local cmd="${1}"
+main() {
+    creds_ensure_dirs
 
-    shift
+    local cmd="${1:-""}"
+
+    [[ "${#}" == "0" ]] || shift
 
     case "${cmd}" in
         version|--version|-v)
@@ -439,19 +441,6 @@ creds_main() {
             ;;
         *)
             creds_show "${cmd}"
-            ;;
-    esac
-}
-
-main() {
-    creds_ensure_creds_dirs
-
-    case "${#}" in
-        0)
-            creds_tree
-            ;;
-        *)
-            creds_main "${@}"
             ;;
     esac
 }
