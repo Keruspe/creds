@@ -33,18 +33,19 @@ creds_help() {
     creds_version
     cat <<EOF
 Usage:
-    ${CREDS_BIN} [show] <name>   -- Display a tree of credentials saved under <name>/ or get the credential named <name>
-    ${CREDS_BIN} tree <name>     -- Display a tree of credentials saved under <name>/
-    ${CREDS_BIN} add <name>      -- Add new credentials named <name>
-    ${CREDS_BIN} edit <name>     -- Edit existing credentials named <name>
-    ${CREDS_BIN} rm <name>       -- Delete existing credentials named <name>
-    ${CREDS_BIN} cp <name> <new> -- Copy existing credentials named <name> as <new>
-    ${CREDS_BIN} mv <name> <new> -- Rename existing credentials named <name> as <new>
-    ${CREDS_BIN} get <name>      -- Get the credentials named <name>
-    ${CREDS_BIN} git ...         -- Run some git commands in the credentials data directory
-    ${CREDS_BIN} gpg-id [id]     -- Display the configure gpg-id to use or set it
-    ${CREDS_BIN} version         -- Display the version number
-    ${CREDS_BIN} help            -- Display this message
+    ${CREDS_BIN} [show] <name>          -- Display a tree of credentials saved under <name>/ or get the credential named <name>
+    ${CREDS_BIN} tree <name>            -- Display a tree of credentials saved under <name>/
+    ${CREDS_BIN} add <name>             -- Add new credentials named <name>
+    ${CREDS_BIN} generate <name> <size> -- Generate new credentials named <name> and get them
+    ${CREDS_BIN} edit <name>            -- Edit existing credentials named <name>
+    ${CREDS_BIN} rm <name>              -- Delete existing credentials named <name>
+    ${CREDS_BIN} cp <name> <new>        -- Copy existing credentials named <name> as <new>
+    ${CREDS_BIN} mv <name> <new>        -- Rename existing credentials named <name> as <new>
+    ${CREDS_BIN} get <name>             -- Get the credentials named <name>
+    ${CREDS_BIN} git ...                -- Run some git commands in the credentials data directory
+    ${CREDS_BIN} gpg-id [id]            -- Display the configure gpg-id to use or set it
+    ${CREDS_BIN} version                -- Display the version number
+    ${CREDS_BIN} help                   -- Display this message
 EOF
 }
 
@@ -164,10 +165,14 @@ EOF
 
 creds_write_credentials() {
     local action="${1}"
+    local size="${2}"
+
+    shift 2
+
+    local name="${1}"
 
     shift
 
-    local name="${1}"
     local file="${CREDS_DIR}/${name}"
     local gpg_id
     local username
@@ -176,8 +181,12 @@ creds_write_credentials() {
     gpg_id="$(creds_get_gpg_id)"
 
     read -r -p "Username: " username
-    read -r -p "Password: " -s password
-    echo
+    if [[ "${size}" -gt "0" ]]; then
+        password="$(pwgen -cny "${@}" ${size})"
+    else
+        read -r -p "Password: " -s password
+        echo
+    fi
 
     mkdir -p "${file%/*}"
     creds_run_gpg -e -r "${gpg_id}" -o "${file}" <<EOF
@@ -202,11 +211,24 @@ creds_ask() {
     [[ "${ans}" == "y" ]]
 }
 
+creds_do_rm() {
+    local name="${1}"
+    local commit="${2}"
+
+    if creds_has_git; then
+        creds_git rm "${name}"
+        [[ "${commit}" != "y" ]] || creds_git commit -m "Remove ${name}"
+    else
+        rm "${CREDS_DIR}/${name}"
+    fi
+}
+
 creds_check_override() {
     local name="${1}"
 
     if creds_check_exists "${name}"; then
         creds_ask "${name} already exists, do you want to override it?" || creds_abort
+        creds_do_rm "${name}" "n"
     fi
 }
 
@@ -217,7 +239,20 @@ creds_add() {
 
     creds_check_override "${name}"
 
-    creds_write_credentials "Add" "${@}"
+    creds_write_credentials "Add" "0" "${@}"
+}
+
+creds_generate() {
+    creds_ensure_enough_args 2 "${@}"
+
+    local name="${1}"
+    local size="${2}"
+
+    shift 2
+
+    creds_check_override "${name}"
+
+    creds_write_credentials "Add" "${size}" "${name}" "${@}"
 }
 
 creds_simple_operation_checks() {
@@ -231,7 +266,7 @@ creds_simple_operation_checks() {
 creds_edit() {
     creds_simple_operation_checks "${@}"
 
-    creds_write_credentials "Edit" "${@}"
+    creds_write_credentials "Edit" "0" "${@}"
 }
 
 creds_rm() {
@@ -241,12 +276,7 @@ creds_rm() {
 
     creds_ask "Do you really want to delete ${name}?" || creds_abort
 
-    if creds_has_git; then
-        creds_git rm "${name}"
-        creds_git commit -m "Remove ${name}"
-    else
-        rm "${CREDS_DIR}/${name}"
-    fi
+    creds_do_rm "${name}" "y"
 }
 
 creds_two_files_operation_checks() {
@@ -370,6 +400,9 @@ creds_main() {
             ;;
         add)
             creds_add "${@}"
+            ;;
+        generate)
+            creds_generate "${@}"
             ;;
         edit)
             creds_edit "${@}"

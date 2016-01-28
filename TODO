@@ -1,6 +1,5 @@
 subcommands:
     find
     grep
-    generate
 completions
 raw mode for add
