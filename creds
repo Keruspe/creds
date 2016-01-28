@@ -93,6 +93,36 @@ creds_run_gpg() {
     "$(creds_get_gpg_bin)" "${CREDS_GPG_ARGS[@]}" "${@}"
 }
 
+creds_has_git() {
+    [[ -d "${CREDS_DIR}/.git" ]]
+}
+
+creds_git() {
+    creds_ensure_enough_args 1 "${@}"
+
+    local cmd="${1}"
+
+    pushd "${CREDS_DIR}" &>/dev/null
+
+    case "${cmd}" in
+        init)
+            git "${@}"
+            git config --local diff.creds.textconv "$(creds_get_gpg_bin) ${CREDS_GPG_ARGS[*]} -d"
+            cat > ".gitattributes" <<EOF
+* diff=creds
+.gitattributes -diff
+EOF
+            git add .
+            git commit -m "Initial commit"
+            ;;
+        *)
+            git "${@}"
+            ;;
+    esac
+
+    popd &>/dev/null
+}
+
 creds_add() {
     creds_ensure_enough_args 1 "${@}"
 
@@ -113,6 +143,11 @@ creds_add() {
 ${username}
 ${password}
 EOF
+
+    if creds_has_git; then
+        creds_git add "${name}"
+        creds_git commit -m "Add ${name}"
+    fi
 }
 
 creds_give_credentials() {
@@ -148,32 +183,6 @@ creds_get() {
     else
         creds_help
     fi
-}
-
-creds_git() {
-    creds_ensure_enough_args 1 "${@}"
-
-    local cmd="${1}"
-
-    pushd "${CREDS_DIR}" &>/dev/null
-
-    case "${cmd}" in
-        init)
-            git "${@}"
-            git config --local diff.creds.textconv "$(creds_get_gpg_bin) ${CREDS_GPG_ARGS[*]} -d"
-            cat > ".gitattributes" <<EOF
-* diff=creds
-.gitattributes -diff
-EOF
-            git add .
-            git commit -m "Initial commit"
-            ;;
-        *)
-            git "${@}"
-            ;;
-    esac
-
-    popd &>/dev/null
 }
 
 creds_gpg_id() {
