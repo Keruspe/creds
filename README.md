@@ -1,4 +1,4 @@
-creds, the credential manager
+creds, the credential mangler
 =============================
 
 Highly inspired by password-store, creds aims to keep track of credentials (usernames and password),
