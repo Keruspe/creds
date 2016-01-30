@@ -1,0 +1,76 @@
+#compdef creds
+
+(( $+functions[_creds_complete_stuff] )) ||
+_creds_complete_stuff() {
+    local CREDS_DIR="${XDG_DATA_HOME:-"${HOME}/.local/share"}/creds"
+    local stuff
+
+    while read -d '' -r stuff; do
+        echo "${stuff/"${CREDS_DIR}/"}" | sed -e 's/.creds$//'
+    done < <(find "${CREDS_DIR}" "${@}" -print0)
+}
+
+(( $+functions[_creds_complete_data] )) ||
+_creds_complete_data() {
+    local tag="${1}"
+
+    shift
+
+    _values -C "${tag}" $(_creds_complete_stuff "${@}")
+}
+
+(( $+functions[_creds_complete_names] )) ||
+_creds_complete_names() {
+    _creds_complete_stuff "credentials" -type f -name '*.creds'
+}
+
+(( $+functions[_creds_complete_dirs] )) ||
+_creds_complete_dirs() {
+    _creds_complete_stuff "directories" -type d ! -name '.git'
+}
+
+(( $+functions[_creds_complete_subcommands] )) ||
+_creds_complete_subcommands() {
+    local -a subcommands
+    subcommands=(
+        "add:Add new credentials named <name> (can read from stdin, will do add-raw in that case)"
+        "add-raw:Add new raw data under the name <name> (can read data from stdin)"
+        "cp:Copy existing credentials named <name> as <new>"
+        "edit:Edit existing credentials named <name>"
+        "find:Display a tree of credentials which names contain <pattern>"
+        "generate:Generate new credentials named <name> and get them"
+        "get:Get the credentials named <name>"
+        "git:Run some git commands in the credentials data directory"
+        "gpg-id:Display the configure gpg-id to use or set it"
+        "grep:Display a list of credentials which contents match <pattern>"
+        "help:Display this message"
+        "mv:Rename existing credentials named <name> as <new>"
+        "rm:Delete existing credentials named <name>"
+        "show:Display a tree of credentials saved under <name>/ or get the credential named <name>"
+        "tree:Display a tree of credentials saved under <name>/"
+        "version:Display the version number"
+    )
+
+    _describe -t commands 'creds subcommand' subcommands
+}
+
+_creds() {
+    case "${CURRENT}" in
+        1)
+            _creds_complete_subcommands
+            ;;
+        2)
+            local action="${words[2]}"
+
+            case "${action}" in
+                cp|edit|get|mv|rm|show)
+                    _creds_complete_names
+                    ;;
+                tree)
+                    _creds_complete_dirs
+                    ;;
+            esac
+    esac
+}
+
+_creds "${@}"
