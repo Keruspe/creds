@@ -83,6 +83,12 @@ creds_check_exists() {
     creds_check_file_not_empty "$(creds_file "${name}")"
 }
 
+creds_check_dir_exists() {
+    local name="${1}"
+
+    [[ -d "${CREDS_DIR}/${name}" ]]
+}
+
 creds_ensure_file_not_empty() {
     local file="${1}"
 
@@ -248,7 +254,9 @@ creds_do_rm() {
 creds_check_override() {
     local name="${1}"
 
-    if creds_check_exists "${name}"; then
+    if creds_check_dir_exists "${name}"; then
+        creds_die 1 "${name} is a directory, aborting."
+    elif creds_check_exists "${name}"; then
         if creds_is_piped; then
             creds_die 1 "${name} already exists, aborting."
         else
