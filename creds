@@ -119,7 +119,7 @@ creds_get_gpg_id() {
 creds_has_bin() {
     local bin="${1}"
 
-    which "${1}" &>/dev/null
+    which "${bin}" &>/dev/null
 }
 
 creds_get_gpg_bin() {
@@ -180,18 +180,16 @@ creds_is_piped() {
 creds_write_credentials() {
     local action="${1}"
     local size="${2}"
+    local name="${3}"
 
-    shift 2
+    shift 3
 
-    local name="${1}"
-
-    shift
-
-    local file="$(creds_file "${name}")"
+    local file
     local gpg_id
     local username
     local password
 
+    file="$(creds_file "${name}")"
     gpg_id="$(creds_get_gpg_id)"
 
     if [[ "${action}" == "${CREDS_ADD_RAW}" ]] || creds_is_piped; then
@@ -205,7 +203,7 @@ creds_write_credentials() {
     else
         read -r -p "Username: " username
         if [[ "${size}" -gt "0" ]]; then
-            password="$(pwgen -cny "${@}" ${size})"
+            password="$(pwgen -cny "${@}" "${size}")"
         else
             read -r -p "Password: " -s password
             echo
@@ -455,11 +453,11 @@ creds_grep() {
     local pattern="${1}"
     local file
 
-    for file in $(find "${CREDS_DIR}" -name '*.creds'); do
+    while read -d '' -r file; do
         if grep -q "${pattern}" "${file}"; then
             echo "${file/"${CREDS_DIR}/"}" | sed -e 's/.creds//'
         fi
-    done
+    done < <(find "${CREDS_DIR}" -name '*.creds' -print0)
 }
 
 main() {
