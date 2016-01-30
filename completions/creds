@@ -41,7 +41,7 @@ _creds() {
                     ;;
             esac
 
-            COMPREPLY=( $(compgen -W "${compl}" -- "${cur}") )
+            [[ -z "${compl}" ]] || COMPREPLY=( $(compgen -W "${compl}" -- "${cur}") )
             ;;
     esac
 }

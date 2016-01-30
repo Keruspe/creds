@@ -17,10 +17,13 @@ _creds_complete_stuff() {
 (( $+functions[_creds_complete_data] )) ||
 _creds_complete_data() {
     local tag="${1}"
+    local compl
 
     shift
 
-    _values -C "${tag}" $(_creds_complete_stuff "${@}")
+    compl="$(_creds_complete_stuff "${@}")"
+
+    [[ -z "${compl}" ]] || _values -C "${tag}" "${compl}"
 }
 
 (( $+functions[_creds_complete_names] )) ||
