@@ -8,7 +8,7 @@ _creds_complete_stuff() {
 }
 
 _creds_complete_names() {
-    _creds_complete_stuff -type f -name '*.creds' 
+    _creds_complete_stuff -type f -name '*.creds'
 }
 
 _creds_complete_dirs() {
