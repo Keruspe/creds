@@ -1,6 +1,5 @@
-readonly CREDS_DIR="${XDG_DATA_HOME:-"${HOME}/.local/share"}/creds"
-
-creds_complete_stuff() {
+_creds_complete_stuff() {
+    local CREDS_DIR="${XDG_DATA_HOME:-"${HOME}/.local/share"}/creds"
     local stuff
 
     while read -d '' -r stuff; do
@@ -8,12 +7,12 @@ creds_complete_stuff() {
     done < <(find "${CREDS_DIR}" "${@}" -print0)
 }
 
-creds_complete_names() {
-    creds_complete_stuff -type f -name '*.creds' 
+_creds_complete_names() {
+    _creds_complete_stuff -type f -name '*.creds' 
 }
 
-creds_complete_dirs() {
-    creds_complete_stuff -type d ! -name '.git'
+_creds_complete_dirs() {
+    _creds_complete_stuff -type d ! -name '.git'
 }
 
 _creds() {
@@ -31,10 +30,10 @@ _creds() {
 
             case "${action}" in
                 cp|edit|get|mv|rm|show)
-                    compl="$(creds_complete_names)"
+                    compl="$(_creds_complete_names)"
                     ;;
                 tree)
-                    compl="$(creds_complete_dirs)"
+                    compl="$(_creds_complete_dirs)"
                     ;;
             esac
 
