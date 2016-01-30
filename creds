@@ -378,13 +378,15 @@ creds_tree() {
     local path="${1:-""}"
     local full_path="${CREDS_DIR}/${path}"
 
+    [[ "${#}" == "0" ]] || shift
+
     if [[ -d "${full_path}" ]]; then
         if [[ -z "${path}" ]]; then
             echo "${CREDS_TOP_LABEL}"
         else
             echo "${CREDS_TOP_LABEL}/${path}"
         fi
-        tree -l -C --noreport "${full_path}" | sed -e '1d' -e 's/.creds//'
+        tree -l -C --noreport "${full_path}" "${@}" | sed -e '1d' -e 's/.creds//'
     else
         creds_die_help 1
     fi
@@ -398,6 +400,14 @@ creds_show() {
     else
         creds_tree "${name}"
     fi
+}
+
+creds_find() {
+    creds_ensure_enough_args 1 "${@}"
+
+    local pattern="${1}"
+
+    creds_tree "" -P "*${pattern}*" --ignore-case --matchdirs --prune
 }
 
 main() {
@@ -446,6 +456,9 @@ main() {
             ;;
         show)
             creds_show "${@}"
+            ;;
+        find)
+            creds_find "${@}"
             ;;
         *)
             creds_show "${cmd}"
