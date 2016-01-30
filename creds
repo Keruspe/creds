@@ -38,6 +38,7 @@ Usage:
     ${CREDS_BIN} [show] <name>          -- Display a tree of credentials saved under <name>/ or get the credential named <name>
     ${CREDS_BIN} tree <name>            -- Display a tree of credentials saved under <name>/
     ${CREDS_BIN} find <pattern>         -- Display a tree of credentials which names contain <pattern>
+    ${CREDS_BIN} grep <pattern>         -- Display a list of credentials which contents match <pattern>
     [... |] ${CREDS_BIN} add <name>     -- Add new credentials named <name> (can read from stdin, will do add-raw in that case)
     [... |] ${CREDS_BIN} add-raw <name> -- Add new raw data under the name <name> (can read data from stdin)
     ${CREDS_BIN} generate <name> <size> -- Generate new credentials named <name> and get them
@@ -448,6 +449,19 @@ creds_find() {
     creds_tree "" "${pattern}" -P "*${pattern}*" --ignore-case --matchdirs --prune
 }
 
+creds_grep() {
+    creds_ensure_enough_args 1 "${@}"
+
+    local pattern="${1}"
+    local file
+
+    for file in $(find "${CREDS_DIR}" -name '*.creds'); do
+        if grep -q "${pattern}" "${file}"; then
+            echo "${file/"${CREDS_DIR}/"}" | sed -e 's/.creds//'
+        fi
+    done
+}
+
 main() {
     creds_ensure_dirs
 
@@ -500,6 +514,9 @@ main() {
             ;;
         find)
             creds_find "${@}"
+            ;;
+        grep)
+            creds_grep "${@}"
             ;;
         *)
             creds_show "${cmd}"
