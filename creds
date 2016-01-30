@@ -431,7 +431,7 @@ creds_tree() {
         else
             echo "${CREDS_TOP_LABEL}/${path}"
         fi
-        tree -l -C --noreport "${full_path}" "${@}" | sed -e '1d' -e 's/.creds//'
+        tree -l -C --noreport "${full_path}" "${@}" | sed -e '1d' -e 's/.creds$//'
     else
         creds_die_help 1
     fi
@@ -463,7 +463,7 @@ creds_grep() {
 
     while read -d '' -r file; do
         if grep -q "${pattern}" "${file}"; then
-            echo "${file/"${CREDS_DIR}/"}" | sed -e 's/.creds//'
+            echo "${file/"${CREDS_DIR}/"}" | sed -e 's/.creds$//'
         fi
     done < <(find "${CREDS_DIR}" -name '*.creds' -print0)
 }
