@@ -334,8 +334,13 @@ creds_give_credentials() {
         [[ -z "${username}" ]] || echo "${username}" | gpaste-client
         echo "Sucessfully added to GPaste" >&2
     else
-        [[ -z "${username}" ]] || echo "Username: '${username}'"
-        [[ -z "${password}" ]] || builtin echo "Password: '${password}'"
+        [[ -z "${username}" ]] || echo "Username: '${username}'" >&2
+        if [[ ! -z "${password}" ]]; then
+            echo -n "Password: '" >&2
+            # Make sure we use the builtin echo not to leak the password via /proc
+            builtin echo -n "${password}"
+            echo "'" >&2
+        fi
     fi
 }
 
