@@ -10,6 +10,7 @@ readonly CREDS_DIR="${XDG_DATA_HOME:-"${HOME}/.local/share"}/creds"
 readonly CREDS_CONFIG_DIR="${XDG_CONFIG_HOME:-"${HOME}/.config"}/creds"
 readonly CREDS_GPG_ID="${CREDS_CONFIG_DIR}/gpg-id"
 readonly CREDS_TOP_LABEL="Credentials"
+readonly CREDS_ADD_RAW="Add raw"
 
 readonly CREDS_GPG_ARGS=( --batch -q --yes --no-encrypt-to --compress-algo=bzip2 )
 
@@ -37,6 +38,7 @@ Usage:
     ${CREDS_BIN} [show] <name>          -- Display a tree of credentials saved under <name>/ or get the credential named <name>
     ${CREDS_BIN} tree <name>            -- Display a tree of credentials saved under <name>/
     ${CREDS_BIN} add <name>             -- Add new credentials named <name>
+    ${CREDS_BIN} add-raw <name>         -- Add new raw data under the name <name>
     ${CREDS_BIN} generate <name> <size> -- Generate new credentials named <name> and get them
     ${CREDS_BIN} edit <name>            -- Edit existing credentials named <name>
     ${CREDS_BIN} rm <name>              -- Delete existing credentials named <name>
@@ -186,12 +188,18 @@ creds_write_credentials() {
 
     gpg_id="$(creds_get_gpg_id)"
 
-    read -r -p "Username: " username
-    if [[ "${size}" -gt "0" ]]; then
-        password="$(pwgen -cny "${@}" ${size})"
+    if [[ "${action}" == "${CREDS_ADD_RAW}" ]]; then
+        # Add a special token as the username, and store the data as the password
+        username="${CREDS_ADD_RAW}"
+        read -r -p "Data: " password
     else
-        read -r -p "Password: " -s password
-        echo
+        read -r -p "Username: " username
+        if [[ "${size}" -gt "0" ]]; then
+            password="$(pwgen -cny "${@}" ${size})"
+        else
+            read -r -p "Password: " -s password
+            echo
+        fi
     fi
 
     mkdir -p "${file%/*}"
@@ -238,14 +246,24 @@ creds_check_override() {
     fi
 }
 
-creds_add() {
+creds_add_checks() {
     creds_ensure_enough_args 1 "${@}"
 
     local name="${1}"
 
     creds_check_override "${name}"
+}
+
+creds_add() {
+    creds_add_checks "${@}"
 
     creds_write_credentials "Add" "0" "${@}"
+}
+
+creds_add_raw() {
+    creds_add_checks "${@}"
+
+    creds_write_credentials "Add raw" "0" "${@}"
 }
 
 creds_generate() {
@@ -329,7 +347,9 @@ creds_give_credentials() {
     local username="${2}"
     local password="${3}"
 
-    if creds_has_bin "gpaste-client"; then
+    if [[ "${username}" == "${CREDS_ADD_RAW}" ]]; then
+        [[ -z "${password}" ]] || echo "${password}"
+    elif creds_has_bin "gpaste-client"; then
         # Make sure we use the builtin echo not to leak the password via /proc
         [[ -z "${password}" ]] || builtin echo "${password}" | gpaste-client add-password "${name}"
         [[ -z "${username}" ]] || echo "${username}" | gpaste-client
@@ -431,6 +451,9 @@ main() {
             ;;
         add)
             creds_add "${@}"
+            ;;
+        add-raw)
+            creds_add_raw "${@}"
             ;;
         generate)
             creds_generate "${@}"

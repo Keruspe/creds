@@ -1,4 +1,3 @@
-subcommands:
-    grep
+creds grep
 completions
-raw mode for add
+support multiline for add-raw
