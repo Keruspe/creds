@@ -59,6 +59,7 @@ _creds_complete_subcommands() {
     )
 
     _describe -t commands 'creds subcommand' subcommands
+    _creds_complete_names
 }
 
 _creds() {
