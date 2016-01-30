@@ -381,7 +381,12 @@ creds_tree() {
     [[ "${#}" == "0" ]] || shift
 
     if [[ -d "${full_path}" ]]; then
-        if [[ -z "${path}" ]]; then
+        if [[ "${#}" != 0 ]]; then
+            # We're running creds_find
+            local pattern="${1}"
+            shift
+            echo "Find: ${pattern}"
+        elif [[ -z "${path}" ]]; then
             echo "${CREDS_TOP_LABEL}"
         else
             echo "${CREDS_TOP_LABEL}/${path}"
@@ -407,7 +412,7 @@ creds_find() {
 
     local pattern="${1}"
 
-    creds_tree "" -P "*${pattern}*" --ignore-case --matchdirs --prune
+    creds_tree "" "${pattern}" -P "*${pattern}*" --ignore-case --matchdirs --prune
 }
 
 main() {
