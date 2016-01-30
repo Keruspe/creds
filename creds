@@ -161,6 +161,7 @@ EOF
             git commit -m "Initial commit"
             ;;
         *)
+            creds_has_git || creds_die 1 "Please run '${CREDS_BIN} git init' first"
             git "${@}"
             ;;
     esac
