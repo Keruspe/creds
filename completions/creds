@@ -1,0 +1,43 @@
+readonly CREDS_DIR="${XDG_DATA_HOME:-"${HOME}/.local/share"}/creds"
+
+creds_complete_stuff() {
+    local stuff
+
+    while read -d '' -r stuff; do
+        echo "${stuff/"${CREDS_DIR/}"}" | sed -e 's/.creds$//'
+    done < <(find "${CREDS_DIR}" "${@}")
+}
+
+creds_complete_names() {
+    creds_complete_stuff -type f -name '*.creds' 
+}
+
+creds_complete_dirs() {
+    creds_complete_stuff -type d ! -name '.git'
+}
+
+_creds() {
+    local cur="${COMP_WORDS[${COMP_CWORD}]}"
+    COMPREPLY=()
+
+    case "${COMP_CWORD}" in
+        1)
+            local opts=(add add-raw cp edit find generate get git gpg-id grep help mv rm show tree version)
+            COMPREPLY=( $(compgen -W "${opts[*]}" -- "${cur}" ) )
+            ;;
+        2)
+            local action="${COMP_WORDS[1]}"
+
+            case "${action}" in
+                cp|edit|get|mv|rm|show)
+                    COMPREPLY=( compgen -W "$(creds_complete_names)" -- "${cur}" )
+                    ;;
+                tree)
+                    COMPREPLY=( compgen -W "$(creds_complete_dirs)" -- "${cur}" )
+                    ;;
+            esac
+            ;;
+    esac
+}
+
+complete -F _creds creds
