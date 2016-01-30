@@ -21,9 +21,9 @@ _creds_complete_data() {
 
     shift
 
-    compl="$(_creds_complete_stuff "${@}")"
+    compl=( $(_creds_complete_stuff "${@}") )
 
-    [[ -z "${compl}" ]] || _values -C "${tag}" "${compl}"
+    [[ -z "${compl[*]}" ]] || _values -C "${tag}" "${compl[@]}"
 }
 
 (( $+functions[_creds_complete_names] )) ||
