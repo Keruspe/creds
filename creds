@@ -37,6 +37,7 @@ creds_help() {
 Usage:
     ${CREDS_BIN} [show] <name>          -- Display a tree of credentials saved under <name>/ or get the credential named <name>
     ${CREDS_BIN} tree <name>            -- Display a tree of credentials saved under <name>/
+    ${CREDS_BIN} find <pattern>         -- Display a tree of credentials which names contain <pattern>
     [... |] ${CREDS_BIN} add <name>     -- Add new credentials named <name> (can read from stdin, will do add-raw in that case)
     [... |] ${CREDS_BIN} add-raw <name> -- Add new raw data under the name <name> (can read data from stdin)
     ${CREDS_BIN} generate <name> <size> -- Generate new credentials named <name> and get them
