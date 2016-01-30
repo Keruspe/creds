@@ -6,7 +6,7 @@ _creds_complete_stuff() {
 
     while read -d '' -r stuff; do
         echo "${stuff/.creds}"
-    done < <(find "*" "${@}" -print0)
+    done < <(find * "${@}" -print0)
 
     popd &>/dev/null
 }

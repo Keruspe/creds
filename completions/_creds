@@ -9,7 +9,7 @@ _creds_complete_stuff() {
 
     while read -d '' -r stuff; do
         echo "${stuff}" | sed -e 's/.creds$//'
-    done < <(find "*" "${@}" -print0)
+    done < <(find * "${@}" -print0)
 
     popd &>/dev/null
 }
