@@ -2,9 +2,13 @@ _creds_complete_stuff() {
     local CREDS_DIR="${XDG_DATA_HOME:-"${HOME}/.local/share"}/creds"
     local stuff
 
+    pushd "${CREDS_DIR}" &>/dev/null
+
     while read -d '' -r stuff; do
-        echo "${stuff/"${CREDS_DIR}/"}" | sed -e 's/.creds$//'
-    done < <(find "${CREDS_DIR}" "${@}" -print0)
+        echo "${stuff/.creds}"
+    done < <(find "*" "${@}" -print0)
+
+    popd &>/dev/null
 }
 
 _creds_complete_names() {
@@ -12,7 +16,7 @@ _creds_complete_names() {
 }
 
 _creds_complete_dirs() {
-    _creds_complete_stuff -type d ! -name '.git'
+    _creds_complete_stuff -type d
 }
 
 _creds() {
