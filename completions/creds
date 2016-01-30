@@ -4,8 +4,8 @@ creds_complete_stuff() {
     local stuff
 
     while read -d '' -r stuff; do
-        echo "${stuff/"${CREDS_DIR/}"}" | sed -e 's/.creds$//'
-    done < <(find "${CREDS_DIR}" "${@}")
+        echo "${stuff/"${CREDS_DIR}/"}" | sed -e 's/.creds$//'
+    done < <(find "${CREDS_DIR}" "${@}" -print0)
 }
 
 creds_complete_names() {
@@ -22,20 +22,23 @@ _creds() {
 
     case "${COMP_CWORD}" in
         1)
-            local opts=(add add-raw cp edit find generate get git gpg-id grep help mv rm show tree version)
+            local opts=( add add-raw cp edit find generate get git gpg-id grep help mv rm show tree version )
             COMPREPLY=( $(compgen -W "${opts[*]}" -- "${cur}" ) )
             ;;
         2)
             local action="${COMP_WORDS[1]}"
+            local compl=""
 
             case "${action}" in
                 cp|edit|get|mv|rm|show)
-                    COMPREPLY=( compgen -W "$(creds_complete_names)" -- "${cur}" )
+                    compl="$(creds_complete_names)"
                     ;;
                 tree)
-                    COMPREPLY=( compgen -W "$(creds_complete_dirs)" -- "${cur}" )
+                    compl="$(creds_complete_dirs)"
                     ;;
             esac
+
+            COMPREPLY=( $(compgen -W "${compl}" -- "${cur}") )
             ;;
     esac
 }
