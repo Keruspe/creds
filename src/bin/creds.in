@@ -483,11 +483,15 @@ creds_grep() {
     local pattern="${1}"
     local file
 
-    while read -r -d '' file; do
+    pushd "${CREDS_DIR}" &>/dev/null
+
+    while read -r -e -d '' file; do
         if grep -q "${pattern}" "${file}"; then
-            echo "${file/"${CREDS_DIR}/"}" | sed -e 's/.creds$//'
+            echo "${file/.creds$}"
         fi
-    done < <(find "${CREDS_DIR}" -name '*.creds' -print0)
+    done < <(find -- * -name '*.creds' -print0)
+
+    popd &>/dev/null
 }
 
 main() {
