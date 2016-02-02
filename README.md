@@ -13,6 +13,7 @@ Dependencies:
 - `gpg2`
 - `sed`
 - `which`
+- `find`
 - `gpaste` (optional, integration of `creds get`)
 - `git` (optional, for `creds git`)
 - `pwgen` (optional, for `creds generate`)

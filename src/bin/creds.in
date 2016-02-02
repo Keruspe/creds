@@ -65,6 +65,10 @@ creds_ensure_dirs() {
     mkdir -p "${CREDS_CONFIG_DIR}"
 }
 
+creds_dirs_gc() {
+    find "${CREDS_DIR}" -type d -empty -delete
+}
+
 creds_check_file_not_empty() {
     local file="${1}"
 
@@ -537,6 +541,8 @@ main() {
             creds_show "${cmd}"
             ;;
     esac
+
+    creds_dirs_gc
 }
 
 main "${@}"
