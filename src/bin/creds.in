@@ -424,15 +424,15 @@ creds_give_credentials() {
     local username="${2}"
     local password="${3}"
 
-    if [[ ! -z "${username}" ]] && [[ "${username}" != "${CREDS_ADD_RAW}" ]]; then
-        if creds_has_gpaste; then
-            echo "${username}" | gpaste-client
-        else
-            echo "Username: '${username}'" >&2
-        fi
+    if [[ "${username}" == "${CREDS_ADD_RAW}" ]]; then
+        creds_give_password "${name}" "${username}" "${password}"
+    elif creds_has_gpaste; then
+        creds_give_password "${name}" "${username}" "${password}"
+        [[ -z "${username}" ]] || echo "${username}" | gpaste-client
+    else
+        [[ ! -z "${username}" ]] || echo "Username: '${username}'" >&2
+        creds_give_password "${name}" "${username}" "${password}"
     fi
-
-    creds_give_password "${name}" "${username}" "${password}"
 }
 
 creds_get() {
