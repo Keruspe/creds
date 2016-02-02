@@ -43,6 +43,18 @@ _creds() {
 
             [[ -z "${compl}" ]] || COMPREPLY=( $(compgen -W "${compl}" -- "${cur}") )
             ;;
+        3)
+            local action="${COMP_WORDS[1]}"
+            local compl=""
+
+            case "${action}" in
+                cp|mv)
+                    compl="$(_creds_complete_dirs)"
+                    ;;
+            esac
+
+            [[ -z "${compl}" ]] || COMPREPLY=( $(compgen -W "${compl}" -- "${cur}") )
+            ;;
     esac
 }
 

@@ -78,6 +78,16 @@ _creds() {
                     _creds_complete_dirs
                     ;;
             esac
+            ;;
+        4)
+            local action="${words[2]}"
+
+            case "${action}" in
+                cp|mv)
+                    _creds_complete_dirs
+                    ;;
+            esac
+            ;;
     esac
 }
 
