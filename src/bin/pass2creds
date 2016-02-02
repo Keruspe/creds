@@ -23,9 +23,9 @@ pass2creds_convert() {
     local username
     local password
 
-    while [[ -z "${new}" ]]; do
+    while [[ -z "${new}" ]]; do
         read -r -e -p "Enter a name for the new credentials ('skip' to skip, default: ${name}): " new
-        [[ "${new}" != "skip" ]] || return
+        [[ "${new}" != "skip" ]] || return 0
         : ${new:="${name}"}
         ! creds exists "${new}" || pass2creds_ask "${new} already exists, override it?" || new=""
     done
