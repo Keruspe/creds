@@ -47,6 +47,7 @@ Usage:
     ${CREDS_BIN} cp <name> <new>        -- Copy existing credentials named <name> as <new>
     ${CREDS_BIN} mv <name> <new>        -- Rename existing credentials named <name> as <new>
     ${CREDS_BIN} get <name>             -- Get the credentials named <name>
+    ${CREDS_BIN} exists <name>          -- Check if the credentials named <name> exist
     ${CREDS_BIN} git ...                -- Run some git commands in the credentials data directory
     ${CREDS_BIN} gpg-id [id]            -- Display the configure gpg-id to use or set it
     ${CREDS_BIN} version                -- Display the version number
@@ -413,6 +414,14 @@ creds_get() {
     creds_give_credentials "${name}" "$(echo "${credentials}" | sed -n '1p')" "$(echo "${credentials}" | sed '1d')"
 }
 
+creds_exists() {
+    creds_ensure_enough_args 1 "${@}"
+
+    local name="${1}"
+
+    creds_check_exists "${name}" || exit 1
+}
+
 creds_gpg_id() {
     case "${#}" in
         0)
@@ -518,6 +527,9 @@ main() {
             ;;
         get)
             creds_get "${@}"
+            ;;
+        exists)
+            creds_exists "${@}"
             ;;
         git)
             creds_git "${@}"
