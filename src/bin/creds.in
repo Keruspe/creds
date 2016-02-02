@@ -291,6 +291,30 @@ creds_add_raw() {
     creds_write_credentials "Add raw" "0" "${@}"
 }
 
+creds_has_gpaste() {
+    creds_has_bin "gpaste-client"
+}
+
+creds_give_password() {
+    local name="${1}"
+    local username="${2}"
+    local password="${3}"
+
+    if [[ ! -z "${password}" ]]; then
+        # Make sure we use the builtin echo not to leak the password via /proc
+        if [[ "${username}" == "${CREDS_ADD_RAW}" ]]; then
+            builtin echo "${password}"
+        elif creds_has_gpaste; then
+            builtin echo "${password}" | gpaste-client add-password "${name}"
+            echo "Sucessfully added to GPaste" >&2
+        else
+            echo -n "Password: '" >&2
+            builtin echo -n "${password}"
+            echo "'" >&2
+        fi
+    fi
+}
+
 creds_generate() {
     creds_ensure_enough_args 2 "${@}"
 
@@ -381,22 +405,15 @@ creds_give_credentials() {
     local username="${2}"
     local password="${3}"
 
-    if [[ "${username}" == "${CREDS_ADD_RAW}" ]]; then
-        [[ -z "${password}" ]] || echo "${password}"
-    elif creds_has_bin "gpaste-client"; then
-        # Make sure we use the builtin echo not to leak the password via /proc
-        [[ -z "${password}" ]] || builtin echo "${password}" | gpaste-client add-password "${name}"
-        [[ -z "${username}" ]] || echo "${username}" | gpaste-client
-        echo "Sucessfully added to GPaste" >&2
-    else
-        [[ -z "${username}" ]] || echo "Username: '${username}'" >&2
-        if [[ ! -z "${password}" ]]; then
-            echo -n "Password: '" >&2
-            # Make sure we use the builtin echo not to leak the password via /proc
-            builtin echo -n "${password}"
-            echo "'" >&2
+    if [[ ! -z "${username}" ]] && [[ "${username}" != "${CREDS_ADD_RAW}" ]]; then
+        if creds_has_gpaste; then
+            echo "${username}" | gpaste-client
+        else
+            echo "Username: '${username}'" >&2
         fi
     fi
+
+    creds_give_password "${name}" "${username}" "${password}"
 }
 
 creds_get() {
