@@ -9,6 +9,9 @@ EXTRA_DIST =       \
 	$(NULL)
 CLEANFILES =
 
+bin_SCRIPTS =
+dist_bin_SCRIPTS =
+
 # Install rules
 
 include src/bin.mk

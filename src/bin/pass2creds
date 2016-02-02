@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+# Copyright (c) 2016, Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
+
+set -euo pipefail
+
+readonly CREDS_GPG_ARGS=( --batch -q --yes --no-encrypt-to --compress-algo=bzip2 )
+
+pass2creds_convert() {
+    local file="${1}"
+    local name="${file/.gpg}"
+    local new
+    local username
+    local password
+
+    read -r -p "Enter a name for the new credentials (default: ${name}): " new
+    read -r -p "Username: " username
+    password="$(gpg "${CREDS_GPG_ARGS[@]}" -d "${file}")"
+
+    creds add "${new:-"${name}"}" &>/dev/null <<EOF
+${username}
+${password}
+EOF
+}
+
+main() {
+    local pass_dir="${1:-"${HOME}/.password-store"}"
+    local files=()
+    local file
+
+    pushd "${pass_dir}" &>/dev/null
+
+    while read -d '' -r file; do
+        files+=( "${file}" )
+    done < <(find * -type f -name '*.gpg' -print0)
+
+    for file in "${files[@]}"; do
+        pass2creds_convert "${file}"
+    done
+
+    popd &>/dev/null
+}
+
+main "${@}"
