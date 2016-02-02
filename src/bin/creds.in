@@ -339,8 +339,13 @@ creds_cp() {
 
     local name="${1}"
     local new="${2}"
+    local new_file
 
-    cp "$(creds_file "${name}")" "$(creds_file "${new}")"
+    new_file="$(creds_file "${new}")"
+    mkdir -p "$(dirname "${new_file}")"
+
+
+    cp "$(creds_file "${name}")" "${new_file}"
 
     if creds_has_git; then
         creds_git add "${new}.creds"
@@ -353,12 +358,16 @@ creds_mv() {
 
     local name="${1}"
     local new="${2}"
+    local new_file
+
+    new_file="$(creds_file "${new}")"
+    mkdir -p "$(dirname "${new_file}")"
 
     if creds_has_git; then
         creds_git mv "${name}.creds" "${new}.creds"
         creds_git commit -m "Rename ${name} to ${new}"
     else
-        mv "$(creds_file "${name}")" "$(creds_file "${new}")"
+        mv "$(creds_file "${name}")" "${new_file}"
     fi
 }
 
