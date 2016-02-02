@@ -12,8 +12,8 @@ pass2creds_convert() {
     local username
     local password
 
-    read -r -p "Enter a name for the new credentials (default: ${name}): " new
-    read -r -p "Username: " username
+    read -r -e -p "Enter a name for the new credentials (default: ${name}): " new
+    read -r -e -p "Username: " username
     password="$(gpg "${CREDS_GPG_ARGS[@]}" -d "${file}")"
 
     creds add "${new:-"${name}"}" &>/dev/null <<EOF
@@ -29,7 +29,7 @@ main() {
 
     pushd "${pass_dir}" &>/dev/null
 
-    while read -d '' -r file; do
+    while read -r -e -d '' file; do
         files+=( "${file}" )
     done < <(find * -type f -name '*.gpg' -print0)
 

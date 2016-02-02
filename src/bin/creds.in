@@ -208,14 +208,14 @@ creds_write_credentials() {
         if creds_is_piped; then
             password="$(cat)"
         else
-            read -r -p "Data: " password
+            read -r -e -p "Data: " password
         fi
     else
-        read -r -p "Username: " username
+        read -r -e -p "Username: " username
         if [[ "${size}" -gt "0" ]]; then
             password="$(pwgen -cny "${@}" "${size}")"
         else
-            read -r -p "Password: " -s password
+            read -r -e -p "Password: " -s password
             echo
         fi
     fi
@@ -237,7 +237,7 @@ creds_ask() {
     local ans=""
 
     while [[ ${ans,,} != "y" && ${ans,,} != "n" ]]; do
-        read -r -p "${question} [y/n] " ans
+        read -r -e -p "${question} [y/n] " ans
     done
 
     [[ "${ans}" == "y" ]]
@@ -474,7 +474,7 @@ creds_grep() {
     local pattern="${1}"
     local file
 
-    while read -d '' -r file; do
+    while read -r -e -d '' file; do
         if grep -q "${pattern}" "${file}"; then
             echo "${file/"${CREDS_DIR}/"}" | sed -e 's/.creds$//'
         fi
