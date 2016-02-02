@@ -27,7 +27,13 @@ pass2creds_convert() {
         read -r -e -p "Enter a name for the new credentials ('skip' to skip, default: ${name}): " new
         [[ "${new}" != "skip" ]] || return 0
         : ${new:="${name}"}
-        ! creds exists "${new}" || pass2creds_ask "${new} already exists, override it?" || new=""
+        if creds exists "${new}"; then
+            if pass2creds_ask "${new} already exists, override it?"; then
+               creds rm "${new}" &>/dev/null <<<"y"
+            else
+                new=""
+            fi
+        fi
     done
 
     read -r -e -p "Username: " username
