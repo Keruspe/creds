@@ -46,7 +46,7 @@ main() {
 
     pushd "${pass_dir}" &>/dev/null
 
-    while read -r -e -d '' file; do
+    while read -r -d '' file; do
         files+=( "${file}" )
     done < <(find * -type f -name '*.gpg' -print0)
 

@@ -7,7 +7,7 @@ _creds_complete_stuff() {
 
     pushd "${CREDS_DIR}" &>/dev/null
 
-    while read -r -e -d '' stuff; do
+    while read -r -d '' stuff; do
         echo "${stuff}" | sed -e 's/.creds$//'
     done < <(find * "${@}" -print0)
 

@@ -483,7 +483,7 @@ creds_grep() {
     local pattern="${1}"
     local file
 
-    while read -r -e -d '' file; do
+    while read -r -d '' file; do
         if grep -q "${pattern}" "${file}"; then
             echo "${file/"${CREDS_DIR}/"}" | sed -e 's/.creds$//'
         fi
