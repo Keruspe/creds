@@ -26,7 +26,7 @@ pass2creds_convert() {
     while [[ -z "${new}" ]]; do
         read -r -e -p "Enter a name for the new credentials ('skip' to skip, default: ${name}): " new
         [[ "${new}" != "skip" ]] || return 0
-        : ${new:="${name}"}
+        : "${new:="${name}"}"
         if creds exists "${new}"; then
             if pass2creds_ask "${new} already exists, override it?"; then
                creds rm "${new}" &>/dev/null <<<"y"
@@ -54,7 +54,7 @@ main() {
 
     while read -r -d '' file; do
         files+=( "${file}" )
-    done < <(find * -type f -name '*.gpg' -print0)
+    done < <(find -- * -type f -name '*.gpg' -print0)
 
     for file in "${files[@]}"; do
         pass2creds_convert "${file}"
