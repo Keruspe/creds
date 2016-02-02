@@ -486,7 +486,7 @@ creds_grep() {
     pushd "${CREDS_DIR}" &>/dev/null
 
     while read -r -e -d '' file; do
-        if grep -q "${pattern}" "${file}"; then
+        if creds_run_gpg -d "${file}" | grep -q "${pattern}"; then
             echo "${file/.creds$}"
         fi
     done < <(find -- * -name '*.creds' -print0)
