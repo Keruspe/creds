@@ -188,38 +188,24 @@ creds_is_piped() {
     [[ ! -t 0 ]]
 }
 
-creds_write_credentials() {
-    local action="${1}"
-    local size="${2}"
-    local name="${3}"
+creds_read_username() {
+    local username
 
-    shift 3
+    read -r -e -p "Username: " username
 
+    echo "${username}"
+}
+
+creds_save_credentials() {
+    local name="${1}"
+    local action="${2}"
+    local username="${3}"
+    local password="${4}"
     local file
     local gpg_id
-    local username
-    local password
 
     file="$(creds_file "${name}")"
     gpg_id="$(creds_get_gpg_id)"
-
-    if [[ "${action}" == "${CREDS_ADD_RAW}" ]] || creds_is_piped; then
-        # Add a special token as the username, and store the data as the password
-        username="${CREDS_ADD_RAW}"
-        if creds_is_piped; then
-            password="$(cat)"
-        else
-            read -r -e -p "Data: " password
-        fi
-    else
-        read -r -e -p "Username: " username
-        if [[ "${size}" -gt "0" ]]; then
-            password="$(pwgen -cny "${@}" "${size}")"
-        else
-            read -r -e -p "Password: " -s password
-            echo
-        fi
-    fi
 
     mkdir -p "${file%/*}"
     creds_run_gpg -e -r "${gpg_id}" -o "${file}" <<EOF
@@ -231,6 +217,32 @@ EOF
         creds_git add "${name}.creds"
         creds_git commit -m "${action} ${name}"
     fi
+}
+
+creds_write_credentials() {
+    local action="${1}"
+    local name="${2}"
+
+    shift 2
+
+    local username
+    local password
+
+    if [[ "${action}" == "${CREDS_ADD_RAW}" ]] || creds_is_piped; then
+        # Add a special token as the username, and store the data as the password
+        username="${CREDS_ADD_RAW}"
+        if creds_is_piped; then
+            password="$(cat)"
+        else
+            read -r -e -p "Data: " password
+        fi
+    else
+        username="$(creds_read_username)"
+        read -r -e -p "Password: " -s password
+        echo
+    fi
+
+    creds_save_credentials "${name}" "${action}" "${username}" "${password}"
 }
 
 creds_ask() {
@@ -282,13 +294,13 @@ creds_add_checks() {
 creds_add() {
     creds_add_checks "${@}"
 
-    creds_write_credentials "Add" "0" "${@}"
+    creds_write_credentials "Add" "${@}"
 }
 
 creds_add_raw() {
     creds_add_checks "${@}"
 
-    creds_write_credentials "Add raw" "0" "${@}"
+    creds_write_credentials "Add raw" "${@}"
 }
 
 creds_has_gpaste() {
@@ -323,9 +335,16 @@ creds_generate() {
 
     shift 2
 
+    local username
+    local password
+
     creds_check_override "${name}"
 
-    creds_write_credentials "Add" "${size}" "${name}" "${@}"
+    username="$(creds_read_username)"
+    password="$(pwgen -cny "${@}" "${size}")"
+
+    creds_save_credentials "${name}" "Add" "${username}" "${password}"
+    creds_give_password "${name}" "${username}" "${password}"
 }
 
 creds_simple_operation_checks() {
@@ -339,7 +358,7 @@ creds_simple_operation_checks() {
 creds_edit() {
     creds_simple_operation_checks "${@}"
 
-    creds_write_credentials "Edit" "0" "${@}"
+    creds_write_credentials "Edit" "${@}"
 }
 
 creds_rm() {
