@@ -49,6 +49,7 @@ Usage:
     ${CREDS_BIN} get <name>             -- Get the credentials named <name>
     ${CREDS_BIN} exists <name>          -- Check if the credentials named <name> exist
     ${CREDS_BIN} git ...                -- Run some git commands in the credentials data directory
+    ${CREDS_BIN} restore <giturl>       -- Restore the creds database from this git url (alias for ${CREDS_BIN} git clone)
     ${CREDS_BIN} gpg-id [id]            -- Display the configure gpg-id to use or set it
     ${CREDS_BIN} version                -- Display the version number
     ${CREDS_BIN} help                   -- Display this message
@@ -188,6 +189,12 @@ EOF
     esac
 
     popd &>/dev/null
+}
+
+creds_restore() {
+    creds_ensure_enough_args 1 "${@}"
+
+    creds_git clone "${@}"
 }
 
 creds_is_piped() {
@@ -579,6 +586,9 @@ main() {
             ;;
         git)
             creds_git "${@}"
+            ;;
+        restore)
+            creds_restore "${@}"
             ;;
         gpg-id)
             creds_gpg_id "${@}"
