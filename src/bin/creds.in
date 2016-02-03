@@ -175,6 +175,12 @@ EOF
             git add .
             git commit -m "Initial commit"
             ;;
+        clone)
+            creds_ensure_enough_args 2 "${@}"
+            cd ..
+            rmdir "${CREDS_DIR}" 2>/dev/null || creds_die 1 "${CREDS_DIR} already exists and is not empty"
+            git "${@}" "${CREDS_DIR}"
+            ;;
         *)
             creds_has_git || creds_die 1 "Please run '${CREDS_BIN} git init' first"
             git "${@}"
