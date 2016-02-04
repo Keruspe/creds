@@ -50,6 +50,9 @@ main() {
     local files=()
     local file
 
+    # Ensure we have a gpg id configured
+    creds gpg-id >/dev/null
+
     pushd "${pass_dir}" &>/dev/null
 
     while read -r -d '' file; do
