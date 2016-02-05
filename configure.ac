@@ -24,6 +24,8 @@ AC_PROG_SED
 AC_PROG_MKDIR_P
 AC_PROG_INSTALL
 
+CREDS_PATH_PROG([XSLTPROC], [xsltproc])
+
 CREDS_ENABLE([bash-completion], [Disable the bash completion], [yes])
 CREDS_ENABLE([zsh-completion],  [Disable the zsh completion],  [yes])
 
@@ -48,6 +50,9 @@ AC_MSG_RESULT([
     exec_prefix:            ${exec_prefix}
     datarootdir:            ${datarootdir}
     datadir:                ${datadir}
+
+    xsltproc:               ${XSLTPROC}
+    xsltproc flags:         ${XSLTPROCFLAGS}
 
     Bash completion:        ${enable_bash_completion}
     Bash completion dir:    ${bashcompletiondir}
