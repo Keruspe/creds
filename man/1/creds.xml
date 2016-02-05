@@ -35,10 +35,10 @@
             <command>creds tree <arg choice="opt"><replaceable>name</replaceable></arg></command>
         </cmdsynopsis>
         <cmdsynopsis>
-            <command>creds find <arg choice="plain"><replaceable>name</replaceable></arg></command>
+            <command>creds find <arg choice="plain"><replaceable>pattern</replaceable></arg></command>
         </cmdsynopsis>
         <cmdsynopsis>
-            <command>creds grep <arg choice="plain"><replaceable>name</replaceable></arg></command>
+            <command>creds grep <arg choice="plain"><replaceable>pattern</replaceable></arg></command>
         </cmdsynopsis>
         <cmdsynopsis>
             <command>creds add <arg choice="plain"><replaceable>name</replaceable></arg></command>
@@ -56,10 +56,10 @@
             <command>creds rm <arg choice="plain"><replaceable>name</replaceable></arg></command>
         </cmdsynopsis>
         <cmdsynopsis>
-            <command>creds cp <arg choice="plain"><replaceable>name</replaceable></arg><arg choice="plain"><replaceable>new</replaceable></arg></command>
+            <command>creds cp <arg choice="plain"><replaceable>name</replaceable></arg> <arg choice="plain"><replaceable>new</replaceable></arg></command>
         </cmdsynopsis>
         <cmdsynopsis>
-            <command>creds mv <arg choice="plain"><replaceable>name</replaceable></arg><arg choice="plain"><replaceable>new</replaceable></arg></command>
+            <command>creds mv <arg choice="plain"><replaceable>name</replaceable></arg> <arg choice="plain"><replaceable>new</replaceable></arg></command>
         </cmdsynopsis>
         <cmdsynopsis>
             <command>creds get <arg choice="plain"><replaceable>name</replaceable></arg></command>
@@ -100,6 +100,125 @@
     <refsect1>
         <title>Commands</title>
         <variablelist>
+            <varlistentry>
+                <term><command>show <arg choice="opt"><replaceable>name</replaceable></arg></command></term>
+                <listitem>
+                    <para>If a name is specified and matches some credentials name, it's the same as <command>creds get <replaceable>name</replaceable></command>.</para>
+                    <para>Otherwise, it's the same as <command>creds tree <arg choice="opt"><replaceable>name</replaceable></arg></command>.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>tree <arg choice="opt"><replaceable>name</replaceable></arg></command></term>
+                <listitem>
+                    <para>Display a tree of the credentials stored.</para>
+                    <para>If a name is specified, only display the children of the corresponding node.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>find <arg choice="plain"><replaceable>pattern</replaceable></arg></command></term>
+                <listitem>
+                    <para>Find the credentials with a name matching the given pattern.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>grep <arg choice="plain"><replaceable>pattern</replaceable></arg></command></term>
+                <listitem>
+                    <para>Find the credentials with a contents (username or password) matching the given pattern.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>add <arg choice="plain"><replaceable>name</replaceable></arg></command></term>
+                <listitem>
+                    <para>If we can read something from <literal>stdin</literal> (if we're piped), this is the same as <command>add-raw <arg choix="plain"><replaceable>name</replaceable></arg></command></para>
+                    <para>Otherwise, it will create a new entry under the speicified name once you've typed a username and a password to store.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>add-raw <arg choice="plain"><replaceable>name</replaceable></arg></command></term>
+                <listitem>
+                    <para>Save new raw data under the specified name.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>generate <arg choice="plain"><replaceable>name</replaceable></arg> <arg choice="plain"><replaceable>size</replaceable></arg></command></term>
+                <listitem>
+                    <para>Generate a new password with the given size, under the given name, after asking you for a corresponding username.</para>
+                    <para>You can pass extra arguments after, which will be given to <command>pwgen</command> to generate your password.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>edit <arg choice="plain"><replaceable>name</replaceable></arg></command></term>
+                <listitem>
+                    <para>Change the username and the password of the credentials saved under the specified name.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>rm <arg choice="plain"><replaceable>name</replaceable></arg></command></term>
+                <listitem>
+                    <para>Delete the crdentiels saved under the specified name.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>cp <arg choice="plain"><replaceable>name</replaceable></arg> <arg choice="plain"><replaceable>new</replaceable></arg></command></term>
+                <listitem>
+                    <para>Make a copy of the credentials saved under the specified name, and save it under the new name.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>mv <arg choice="plain"><replaceable>name</replaceable></arg> <arg choice="plain"><replaceable>new</replaceable></arg></command></term>
+                <listitem>
+                    <para>Rename the credentials saved under the specified name to the new name.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>get <arg choice="plain"><replaceable>name</replaceable></arg></command></term>
+                <listitem>
+                    <para>Get the credentials saved under the specified name.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>exists <arg choice="plain"><replaceable>name</replaceable></arg></command></term>
+                <listitem>
+                    <para>Check whether some credentials have been saved under the specified name.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>git</command></term>
+                <listitem>
+                    <para>Run a git command inside the directory in which credentials are stored.</para>
+                    <para>You will first need to run <command>creds git init</command> to enable the git feature.</para>
+                    <para>Once the git feature is enabled, a new commit will be done each time you create/delete/edit/rename/copy some credentials.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>restore</command> <arg choice="plain"><replaceable>git-url</replaceable></arg></term>
+                <listitem>
+                    <para>If you're setting up a new computer and are publishing your store to <literal><replaceable>git-url</replaceable></literal> using <command>creds git push</command>, this will restore it on the new computer.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>gpg-id</command> <arg choice="opt"><replaceable>id</replaceable></arg></term>
+                <listitem>
+                    <para>If an id is specified, use it to store credentials that will be added in the future.</para>
+                    <para>Otherwise, display the currently used gpg id.</para>
+                </listitem>
+            </varlistentry>
+
             <varlistentry>
                 <term><command>version</command></term>
                 <listitem>
