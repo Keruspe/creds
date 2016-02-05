@@ -22,7 +22,7 @@ CLEANFILES +=        \
 
 SUFFIXES += .1 .xml
 .xml.1:
-	@ $(MKDIR_P) $(dir @)
-	$(AM_V_GEN) $(XSLTPROC) -o $(@) $(AM_XSLTPROCFLAGS) ${XSLTPROCFLAGS}                \
+	@ $(MKDIR_P) $(@D)/1
+	$(AM_V_GEN) $(XSLTPROC) -o $(@D)/1 $(AM_XSLTPROCFLAGS) ${XSLTPROCFLAGS}             \
 	    http://docbook.sourceforge.net/release/xsl/current/manpages/profile-docbook.xsl \
 	    $<
