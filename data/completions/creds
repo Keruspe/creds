@@ -25,7 +25,7 @@ _creds() {
 
     case "${COMP_CWORD}" in
         1)
-            local opts=( add add-raw cp edit find generate get git gpg-id grep help mv rm show tree version )
+            local opts=( add add-raw cp edit exists find generate get git gpg-id grep help mv restore rm show tree version )
             COMPREPLY=( $(compgen -W "${opts[*]}" -- "${cur}" ) )
             ;;
         2)
@@ -33,7 +33,7 @@ _creds() {
             local compl=""
 
             case "${action}" in
-                cp|edit|get|mv|rm|show)
+                cp|edit|exists|get|mv|rm|show)
                     compl="$(_creds_complete_names)"
                     ;;
                 tree)
