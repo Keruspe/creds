@@ -8,6 +8,7 @@ EXTRA_DIST =       \
 	README.md  \
 	$(NULL)
 CLEANFILES =
+SUFFIXES =
 
 bin_SCRIPTS =
 dist_bin_SCRIPTS =
@@ -16,6 +17,7 @@ dist_bin_SCRIPTS =
 
 include src/bin.mk
 include data/completions.mk
+include man/1.mk
 
 # Maintainance stuff
 

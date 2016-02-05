@@ -1,7 +1,7 @@
 creds, the credential mangler
 =============================
 
-Highly inspired by password-store, creds aims to keep track of credentials (usernames and password),
+Highly inspired by password-store, creds aims to keep track of credentials (usernames and passwords),
 storing them in the filesystem encrypted with gpg.
 
 It has a nice integration with GPaste.

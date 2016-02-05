@@ -1,0 +1,118 @@
+<?xml version='1.0' encoding='utf-8' ?>
+<!DOCTYPE refentry PUBLIC "-//OASIS//DTD DocBook XML V4.5//EN" "http://www.oasis-open.org/docbook/xml/4.5/docbookx.dtd" []>
+<!-- Copyright (c) 2016, Marc-Antoine Perennou <Marc-Antoine@Perennou.com> -->
+
+<refentry xmlns:xi="http://www.w3.org/2001/XInclude" id="creds">
+    <refentryinfo>
+        <title>creds</title>
+        <productname>creds</productname>
+
+        <authorgroup>
+            <author>
+                <contrib>Developer</contrib>
+                <firstname>Marc-Antoine</firstname>
+                <surname>Perennou</surname>
+                <email>Marc-Antoine@Perennou.com</email>
+            </author>
+        </authorgroup>
+    </refentryinfo>
+
+    <refmeta>
+        <refentrytitle>creds</refentrytitle>
+        <manvolnum>1</manvolnum>
+    </refmeta>
+
+    <refnamediv>
+        <refname>creds</refname>
+        <refpurpose>The credentials mangler</refpurpose>
+    </refnamediv>
+
+    <refsynopsisdiv>
+        <cmdsynopsis>
+            <command>creds <arg choice="opt">show</arg> <arg choice="opt"><replaceable>name</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds tree <arg choice="opt"><replaceable>name</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds find <arg choice="plain"><replaceable>name</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds grep <arg choice="plain"><replaceable>name</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds add <arg choice="plain"><replaceable>name</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds add-raw <arg choice="plain"><replaceable>name</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds generate <arg choice="plain"><replaceable>name</replaceable></arg> <arg choice="plain"><replaceable>size</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds edit <arg choice="plain"><replaceable>name</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds rm <arg choice="plain"><replaceable>name</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds cp <arg choice="plain"><replaceable>name</replaceable></arg><arg choice="plain"><replaceable>new</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds mv <arg choice="plain"><replaceable>name</replaceable></arg><arg choice="plain"><replaceable>new</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds get <arg choice="plain"><replaceable>name</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds exists <arg choice="plain"><replaceable>name</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds git <arg choice="plain"><replaceable>git-args</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds restore <arg choice="plain"><replaceable>git-url</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds gpg-id <arg choice="opt"><replaceable>id</replaceable></arg></command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds version</command>
+        </cmdsynopsis>
+        <cmdsynopsis>
+            <command>creds help</command>
+        </cmdsynopsis>
+    </refsynopsisdiv>
+
+    <refsect1>
+        <title>Description</title>
+        <para>
+            <command>creds</command> aims to keep track of credentials &#40;usernames and passwords&#41;.
+        </para>
+        <para>
+            The credentials are stored in the filesystem encrypted with GPG.
+        </para>
+        <para>
+            There is a nice integration with <command>gpaste-client</command>.
+        </para>
+    </refsect1>
+
+    <refsect1>
+        <title>Commands</title>
+        <variablelist>
+            <varlistentry>
+                <term><command>version</command></term>
+                <listitem>
+                    <para>Display the version.</para>
+                </listitem>
+            </varlistentry>
+
+            <varlistentry>
+                <term><command>help</command></term>
+                <listitem>
+                    <para>Display the help.</para>
+                </listitem>
+            </varlistentry>
+        </variablelist>
+    </refsect1>
+</refentry>
