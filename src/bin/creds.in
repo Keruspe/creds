@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Copyright (c) 2016, Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
 
-set -euo pipefail
+set -euo pipefail -o errtrace
 
 readonly CREDS_VERSION="@PACKAGE_VERSION@"
 
@@ -14,6 +14,17 @@ readonly CREDS_ADD_RAW="Add raw"
 readonly CREDS_REENCRYPT="Reencrypt everything"
 
 readonly CREDS_GPG_ARGS=( --batch -q --yes --no-encrypt-to --compress-algo=bzip2 )
+
+creds_stacktrace() {
+    local count=0
+
+    echo "Stacktrace:" >&2
+    echo "=============================================" >&2
+    while caller "${count}" >&2; do
+        count=$(( count + 1 ));
+    done
+    echo "=============================================" >&2
+}
 
 creds_die() {
     local ret="${1}"
@@ -592,6 +603,8 @@ creds_grep() {
 }
 
 main() {
+    trap creds_stacktrace ERR
+
     creds_ensure_dirs
     creds_backward_compat
 
