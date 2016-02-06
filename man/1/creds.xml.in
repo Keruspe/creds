@@ -164,7 +164,7 @@
             <varlistentry>
                 <term><command>rm <arg choice="req"><replaceable>name</replaceable></arg></command></term>
                 <listitem>
-                    <para>Delete the crdentiels saved under the specified name.</para>
+                    <para>Delete the credentiels saved under the specified name.</para>
                 </listitem>
             </varlistentry>
 
