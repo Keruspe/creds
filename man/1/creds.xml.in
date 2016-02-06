@@ -103,7 +103,7 @@
             <varlistentry>
                 <term><command>show <arg choice="opt"><replaceable>name</replaceable></arg></command></term>
                 <listitem>
-                    <para>If a name is specified and matches some credentials name, it's the same as <command>creds get <replaceable>name</replaceable></command>.</para>
+                    <para>If a name is specified and matches some credentials name, it's the same as <command>creds get <arg choice="req"><replaceable>name</replaceable></arg></command>.</para>
                     <para>Otherwise, it's the same as <command>creds tree <arg choice="opt"><replaceable>name</replaceable></arg></command>.</para>
                 </listitem>
             </varlistentry>
@@ -133,7 +133,7 @@
             <varlistentry>
                 <term><command>add <arg choice="req"><replaceable>name</replaceable></arg></command></term>
                 <listitem>
-                    <para>If we can read something from <literal>stdin</literal> (if we're piped), this is the same as <command>add-raw <arg choix="req"><replaceable>name</replaceable></arg></command></para>
+                    <para>If we can read something from <literal>stdin</literal> (if we're piped), this is the same as <command>add-raw <arg choice="req"><replaceable>name</replaceable></arg></command></para>
                     <para>Otherwise, it will create a new entry under the speicified name once you've typed a username and a password to store.</para>
                 </listitem>
             </varlistentry>
