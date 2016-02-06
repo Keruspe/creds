@@ -8,21 +8,17 @@ AM_XSLTPROCFLAGS =                            \
 	--path %D%/1                          \
 	$(NULL)
 
-man1_MANS =           \
+dist_man1_MANS =      \
 	%D%/1/creds.1 \
 	$(NULL)
 
-EXTRA_DIST +=                \
-	$(man1_MANS:.1=.xml) \
-	$(NULL)
-
-CLEANFILES +=        \
-	$(man1_MANS) \
+EXTRA_DIST +=                    \
+	$(dist_man1_MANS:.1=.xml) \
 	$(NULL)
 
 SUFFIXES += .1 .xml
 .xml.1:
 	@ $(MKDIR_P) $(@D)/1
-	$(AM_V_GEN) $(XSLTPROC) -o $(@D)/1 $(AM_XSLTPROCFLAGS) ${XSLTPROCFLAGS}             \
-	    http://docbook.sourceforge.net/release/xsl/current/manpages/profile-docbook.xsl \
+	$(AM_V_GEN) $(XSLTPROC) -o $(@D)/1 $(AM_XSLTPROCFLAGS) ${XSLTPROCFLAGS}     \
+	    http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl \
 	    $<

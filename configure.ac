@@ -24,7 +24,7 @@ AC_PROG_SED
 AC_PROG_MKDIR_P
 AC_PROG_INSTALL
 
-CREDS_PATH_PROG([XSLTPROC], [xsltproc])
+AC_PATH_PROG([XSLTPROC], [xsltproc])
 
 CREDS_ENABLE([bash-completion], [Disable the bash completion], [yes])
 CREDS_ENABLE([zsh-completion],  [Disable the zsh completion],  [yes])

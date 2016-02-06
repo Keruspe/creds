@@ -21,10 +21,3 @@ AC_DEFUN([_CREDS_ENABLE], [
     AM_CONDITIONAL(AS_TR_CPP(ENABLE_$1), [test x$enable_$4 = xyes])
 ])
 AC_DEFUN([CREDS_ENABLE], [_CREDS_ENABLE([$1],[$2],[$3],AS_TR_SH([$1]),m4_if([$3],[no],[enable],[disable]))])
-
-dnl CREDS_PATH_PROG([variable], [progname])
-dnl Check for the path to progname and error if not found
-AC_DEFUN([CREDS_PATH_PROG], [
-    AC_PATH_PROG([$1], [$2])
-    AS_IF([test x${$1} = x], [AC_MSG_ERROR([$2 not found])])
-])
