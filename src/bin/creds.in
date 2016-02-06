@@ -457,10 +457,10 @@ creds_get() {
     local password
 
     credentials="$(creds_run_gpg -d "$(creds_file "${name}")")"
-    username="$(echo "${credentials}" | sed -n '1p')"
-    password="$(echo "${credentials}" | sed '1d')"
+    username="$(builtin echo "${credentials}" | sed -n '1p')"
+    password="$(builtin echo "${credentials}" | sed '1d')"
 
-    creds_give_credentials "${name}" "$(echo "${credentials}" | sed -n '1p')" "$(echo "${credentials}" | sed '1d')"
+    creds_give_credentials "${name}" "${username}" "${password}"
 }
 
 creds_exists() {
