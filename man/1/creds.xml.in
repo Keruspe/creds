@@ -142,6 +142,7 @@
                 <term><command>add-raw <arg choice="plain"><replaceable>name</replaceable></arg></command></term>
                 <listitem>
                     <para>Save new raw data under the specified name.</para>
+                    <para>You will need to pipe your data to <literal>stdin</literal> for multiline contents to work.</para>
                 </listitem>
             </varlistentry>
 
@@ -215,6 +216,7 @@
                 <term><command>gpg-id</command> <arg choice="opt"><replaceable>id</replaceable></arg></term>
                 <listitem>
                     <para>If an id is specified, use it to store credentials that will be added in the future.</para>
+                    <para>This will reencrypt everything using the freshly provided gpg id.</para>
                     <para>Both short ids and long ids are supported.</para>
                     <para>Otherwise, display the currently used gpg id.</para>
                 </listitem>
