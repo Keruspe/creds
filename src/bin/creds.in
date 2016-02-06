@@ -11,6 +11,7 @@ readonly CREDS_CONFIG_DIR="${XDG_CONFIG_HOME:-"${HOME}/.config"}/creds"
 readonly CREDS_GPG_ID="${CREDS_CONFIG_DIR}/gpg-id"
 readonly CREDS_TOP_LABEL="Credentials"
 readonly CREDS_ADD_RAW="Add raw"
+readonly CREDS_REENCRYPT="Reencrypt everything"
 
 readonly CREDS_GPG_ARGS=( --batch -q --yes --no-encrypt-to --compress-algo=bzip2 )
 
@@ -228,7 +229,7 @@ EOF
 
     if creds_has_git; then
         creds_git add "${name}.creds"
-        creds_git commit -m "${action} ${name}"
+        [[ "${action}" == "${CREDS_REENCRYPT}" ]] || creds_git commit -m "${action} ${name}"
     fi
 }
 
@@ -471,6 +472,30 @@ creds_exists() {
     creds_check_exists "${name}" || exit 1
 }
 
+creds_reencrypt_everything() {
+    local name
+    local credentials
+    local username
+    local password
+
+    pushd "${CREDS_DIR}" &>/dev/null
+
+    while read -r -e -d '' file; do
+        name="${file/.creds}"
+        credentials="$(creds_run_gpg -d "$(creds_file "${name}")")"
+        username="$(builtin echo "${credentials}" | sed -n '1p')"
+        password="$(builtin echo "${credentials}" | sed '1d')"
+
+        creds_save_credentials "${name}" "${CREDS_REENCRYPT}" "${username}" "${password}"
+    done < <(find -- * -name '*.creds' -print0)
+
+    popd &>/dev/null
+
+    if creds_has_git; then
+        creds_git commit -m "${CREDS_REENCRYPT}"
+    fi
+}
+
 creds_gpg_id() {
     case "${#}" in
         0)
@@ -478,6 +503,7 @@ creds_gpg_id() {
             ;;
         1)
             echo "${1}" > "${CREDS_GPG_ID}"
+            creds_reencrypt_everything
             ;;
         *)
             creds_die_help 1
