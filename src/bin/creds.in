@@ -124,7 +124,7 @@ creds_ensure_enough_args() {
     fi
 }
 
-creds_get_gpg_id() {
+creds_get_gpg_ids() {
     creds_ensure_gpg_id
     cat -v "${CREDS_GPG_ID}"
 }
@@ -210,19 +210,30 @@ creds_read_username() {
     echo "${username}"
 }
 
+creds_get_recipients() {
+    local gpg_ids
+    local gpg_id
+
+    gpg_ids=( $(creds_get_gpg_ids) )
+
+    for gpg_id in "${gpg_ids[@]}"; do
+        echo "-r ${gpg_id}"
+    done
+}
+
 creds_save_credentials() {
     local name="${1}"
     local action="${2}"
     local username="${3}"
     local password="${4}"
+    local recipients
     local file
-    local gpg_id
 
+    recipients=( $(creds_get_recipients) )
     file="$(creds_file "${name}")"
-    gpg_id="$(creds_get_gpg_id)"
 
     mkdir -p "${file%/*}"
-    creds_run_gpg -e -r "${gpg_id}" -o "${file}" <<EOF
+    creds_run_gpg -e "${recipients[@]}" -o "${file}" <<EOF
 ${username}
 ${password}
 EOF
@@ -499,14 +510,16 @@ creds_reencrypt_everything() {
 creds_gpg_id() {
     case "${#}" in
         0)
-            creds_get_gpg_id
-            ;;
-        1)
-            echo "${1}" > "${CREDS_GPG_ID}"
-            creds_reencrypt_everything
+            creds_get_gpg_ids
             ;;
         *)
-            creds_die_help 1
+            local gpg_id
+
+            for gpg_id in "${@}"; do
+                echo "${gpg_id}"
+            done > "${CREDS_GPG_ID}"
+
+            creds_reencrypt_everything
             ;;
     esac
 }
