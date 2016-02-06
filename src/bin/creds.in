@@ -62,7 +62,7 @@ Usage:
     ${CREDS_BIN} exists <name>          -- Check if the credentials named <name> exist
     ${CREDS_BIN} git ...                -- Run some git commands in the credentials data directory
     ${CREDS_BIN} restore <giturl>       -- Restore the creds database from this git url (alias for ${CREDS_BIN} git clone)
-    ${CREDS_BIN} gpg-ids [id]            -- Display the configure gpg-ids to use or set it
+    ${CREDS_BIN} gpg-ids [id]           -- Display the configure gpg-ids to use or set it
     ${CREDS_BIN} version                -- Display the version number
     ${CREDS_BIN} help                   -- Display this message
 EOF
