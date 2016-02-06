@@ -196,7 +196,7 @@
             </varlistentry>
 
             <varlistentry>
-                <term><command>git</command></term>
+                <term><command>git <arg choice="plain"><replaceable>git-args</replaceable></arg></command></term>
                 <listitem>
                     <para>Run a git command inside the directory in which credentials are stored.</para>
                     <para>You will first need to run <command>creds git init</command> to enable the git feature.</para>
