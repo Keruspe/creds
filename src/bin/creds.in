@@ -68,6 +68,15 @@ creds_ensure_dirs() {
     mkdir -p "${CREDS_CONFIG_DIR}"
 }
 
+# TODO: drop me after creds 1 is released
+creds_backward_compat() {
+    local old_gpg_id="${CREDS_CONFIG_DIR}/gpg-id"
+
+    if [[ ! -f ${CREDS_GPG_IDS} ]] && [[ -f "${old_gpg_id}" ]]; then
+        mv "${old_gpg_id}" "${CREDS_GPG_IDS}"
+    fi
+}
+
 creds_dirs_gc() {
     find "${CREDS_DIR}" -type d -empty -delete
 }
@@ -584,6 +593,7 @@ creds_grep() {
 
 main() {
     creds_ensure_dirs
+    creds_backward_compat
 
     local cmd="${1:-""}"
 
