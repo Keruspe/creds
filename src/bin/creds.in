@@ -480,7 +480,7 @@ creds_reencrypt_everything() {
 
     pushd "${CREDS_DIR}" &>/dev/null
 
-    while read -r -e -d '' file; do
+    while read -r -d '' file; do
         name="${file/.creds}"
         credentials="$(creds_run_gpg -d "$(creds_file "${name}")")"
         username="$(builtin echo "${credentials}" | sed -n '1p')"
@@ -560,7 +560,7 @@ creds_grep() {
 
     pushd "${CREDS_DIR}" &>/dev/null
 
-    while read -r -e -d '' file; do
+    while read -r -d '' file; do
         if creds_run_gpg -d "${file}" | grep -q "${pattern}"; then
             echo "${file/.creds}"
         fi
