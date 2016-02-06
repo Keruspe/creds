@@ -1,3 +1,4 @@
 /Makefile
 /src/bin/creds
+/man/1/*.xml
 /man/1/*.1

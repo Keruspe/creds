@@ -12,8 +12,8 @@ dist_man1_MANS =      \
 	%D%/1/creds.1 \
 	$(NULL)
 
-EXTRA_DIST +=                    \
-	$(dist_man1_MANS:.1=.xml) \
+EXTRA_DIST +=                        \
+	$(dist_man1_MANS:.1=.xml.in) \
 	$(NULL)
 
 SUFFIXES += .1 .xml

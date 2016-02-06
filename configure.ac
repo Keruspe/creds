@@ -40,6 +40,7 @@ AS_IF([test x${enable_zsh_completion} = xyes], [
 AC_CONFIG_FILES([
     Makefile
     src/bin/creds
+    man/1/creds.xml
 ])
 AC_OUTPUT
 AC_MSG_RESULT([

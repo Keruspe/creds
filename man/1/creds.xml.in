@@ -5,7 +5,7 @@
 <refentry xmlns:xi="http://www.w3.org/2001/XInclude" id="creds">
     <refentryinfo>
         <title>creds</title>
-        <productname>creds</productname>
+        <productname>creds @PACKAGE_VERSION@</productname>
 
         <authorgroup>
             <author>
