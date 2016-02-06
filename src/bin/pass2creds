@@ -51,7 +51,7 @@ main() {
     local file
 
     # Ensure we have a gpg id configured
-    creds gpg-id >/dev/null
+    creds gpg-ids >/dev/null
 
     pushd "${pass_dir}" &>/dev/null
 

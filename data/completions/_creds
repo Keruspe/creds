@@ -49,7 +49,7 @@ _creds_complete_subcommands() {
         "generate:Generate new credentials named <name> and get them"
         "get:Get the credentials named <name>"
         "git:Run some git commands in the credentials data directory"
-        "gpg-id:Display the configure gpg-id to use or set it"
+        "gpg-ids:Display the configured gpg-ids to use or set them"
         "grep:Display a list of credentials which contents match <pattern>"
         "help:Display this message"
         "mv:Rename existing credentials named <name> as <new>"

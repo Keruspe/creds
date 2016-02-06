@@ -8,7 +8,7 @@ readonly CREDS_VERSION="@PACKAGE_VERSION@"
 readonly CREDS_BIN="${0##*/}"
 readonly CREDS_DIR="${XDG_DATA_HOME:-"${HOME}/.local/share"}/creds"
 readonly CREDS_CONFIG_DIR="${XDG_CONFIG_HOME:-"${HOME}/.config"}/creds"
-readonly CREDS_GPG_ID="${CREDS_CONFIG_DIR}/gpg-id"
+readonly CREDS_GPG_IDS="${CREDS_CONFIG_DIR}/gpg-ids"
 readonly CREDS_TOP_LABEL="Credentials"
 readonly CREDS_ADD_RAW="Add raw"
 readonly CREDS_REENCRYPT="Reencrypt everything"
@@ -51,7 +51,7 @@ Usage:
     ${CREDS_BIN} exists <name>          -- Check if the credentials named <name> exist
     ${CREDS_BIN} git ...                -- Run some git commands in the credentials data directory
     ${CREDS_BIN} restore <giturl>       -- Restore the creds database from this git url (alias for ${CREDS_BIN} git clone)
-    ${CREDS_BIN} gpg-id [id]            -- Display the configure gpg-id to use or set it
+    ${CREDS_BIN} gpg-ids [id]            -- Display the configure gpg-ids to use or set it
     ${CREDS_BIN} version                -- Display the version number
     ${CREDS_BIN} help                   -- Display this message
 EOF
@@ -108,9 +108,9 @@ creds_ensure_exists() {
     creds_check_exists "${name}" || creds_die 1 "${name} doesn't exist"
 }
 
-creds_ensure_gpg_id() {
-    if ! creds_check_file_not_empty "${CREDS_GPG_ID}"; then
-        creds_die 1 "No gpg-id configured, please set one using '${CREDS_BIN} gpg-id XXXXXXXX' where XXXXXXXX is your gpg id."
+creds_ensure_gpg_ids() {
+    if ! creds_check_file_not_empty "${CREDS_GPG_IDS}"; then
+        creds_die 1 "No gpg-ids configured, please set one using '${CREDS_BIN} gpg-ids XXXXXXXX' where XXXXXXXX is your gpg id."
     fi
 }
 
@@ -125,8 +125,8 @@ creds_ensure_enough_args() {
 }
 
 creds_get_gpg_ids() {
-    creds_ensure_gpg_id
-    cat -v "${CREDS_GPG_ID}"
+    creds_ensure_gpg_ids
+    cat -v "${CREDS_GPG_IDS}"
 }
 
 creds_has_bin() {
@@ -507,7 +507,7 @@ creds_reencrypt_everything() {
     fi
 }
 
-creds_gpg_id() {
+creds_gpg_ids() {
     case "${#}" in
         0)
             creds_get_gpg_ids
@@ -517,7 +517,7 @@ creds_gpg_id() {
 
             for gpg_id in "${@}"; do
                 echo "${gpg_id}"
-            done > "${CREDS_GPG_ID}"
+            done > "${CREDS_GPG_IDS}"
 
             creds_reencrypt_everything
             ;;
@@ -629,8 +629,8 @@ main() {
         restore)
             creds_restore "${@}"
             ;;
-        gpg-id)
-            creds_gpg_id "${@}"
+        gpg-ids)
+            creds_gpg_ids "${@}"
             ;;
         tree)
             creds_tree "${@}"

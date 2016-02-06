@@ -74,7 +74,7 @@
             <command>creds restore <arg choice="req"><replaceable>git-url</replaceable></arg></command>
         </cmdsynopsis>
         <cmdsynopsis>
-            <command>creds gpg-id <arg choice="opt" rep="repeat"><replaceable>id</replaceable></arg></command>
+            <command>creds gpg-ids <arg choice="opt" rep="repeat"><replaceable>id</replaceable></arg></command>
         </cmdsynopsis>
         <cmdsynopsis>
             <command>creds version</command>
@@ -213,7 +213,7 @@
             </varlistentry>
 
             <varlistentry>
-                <term><command>gpg-id</command> <arg choice="opt" rep="repeat"><replaceable>id</replaceable></arg></term>
+                <term><command>gpg-ids</command> <arg choice="opt" rep="repeat"><replaceable>id</replaceable></arg></term>
                 <listitem>
                     <para>If one or several ids are specified, use them to store credentials that will be added in the future.</para>
                     <para>This will reencrypt everything using the freshly provided gpg ids.</para>
