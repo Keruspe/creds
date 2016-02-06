@@ -18,7 +18,11 @@ EXTRA_DIST +=                    \
 
 SUFFIXES += .1 .xml
 .xml.1:
-	@ $(MKDIR_P) $(@D)/1
-	$(AM_V_GEN) $(XSLTPROC) -o $(@D)/1 $(AM_XSLTPROCFLAGS) ${XSLTPROCFLAGS}     \
+	@ if test -z "$(XSLTPROC)"; then                    \
+	    echo "xsltproc is required to build man pages"; \
+	    exit 1;                                         \
+	fi
+	@ $(MKDIR_P) $(@D)
+	$(AM_V_GEN) $(XSLTPROC) $(AM_XSLTPROCFLAGS) $(XSLTPROCFLAGS) -o $(@D)/      \
 	    http://docbook.sourceforge.net/release/xsl/current/manpages/docbook.xsl \
 	    $<
