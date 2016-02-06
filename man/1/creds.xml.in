@@ -215,6 +215,7 @@
                 <term><command>gpg-id</command> <arg choice="opt"><replaceable>id</replaceable></arg></term>
                 <listitem>
                     <para>If an id is specified, use it to store credentials that will be added in the future.</para>
+                    <para>Both short ids and long ids are supported.</para>
                     <para>Otherwise, display the currently used gpg id.</para>
                 </listitem>
             </varlistentry>
