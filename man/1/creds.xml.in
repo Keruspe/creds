@@ -171,7 +171,7 @@
             <varlistentry>
                 <term><command>cp <arg choice="req"><replaceable>name</replaceable></arg> <arg choice="req"><replaceable>new</replaceable></arg></command></term>
                 <listitem>
-                    <para>Make a copy of the credentials saved under the specified name, and save it under the new name.</para>
+                    <para>Make a copy of the credentials saved under the specified name and save it under the new name.</para>
                 </listitem>
             </varlistentry>
 

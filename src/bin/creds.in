@@ -47,24 +47,24 @@ creds_help() {
     creds_version
     cat <<EOF
 Usage:
-    ${CREDS_BIN} [show] [name]          -- Display a tree of credentials saved under "name/" or get the credential named "name"
-    ${CREDS_BIN} tree [name]            -- Display a tree of credentials saved under "name/"
-    ${CREDS_BIN} find {pattern}         -- Display a tree of credentials which names contain "pattern"
-    ${CREDS_BIN} grep {pattern}         -- Display a list of credentials which contents match "pattern"
-    [... |] ${CREDS_BIN} add {name}     -- Add new credentials named "name" (can read from stdin, will do add-raw in that case)
-    [... |] ${CREDS_BIN} add-raw {name} -- Add new raw data under the name "name" (can read data from stdin)
-    ${CREDS_BIN} generate {name} {size} -- Generate new credentials named "name" and get them
-    ${CREDS_BIN} edit {name}            -- Edit existing credentials named "name"
-    ${CREDS_BIN} rm {name}              -- Delete existing credentials named "name"
-    ${CREDS_BIN} cp {name} {new}        -- Copy existing credentials named "name" as "new"
-    ${CREDS_BIN} mv {name} {new}        -- Rename existing credentials named "name" as "new"
-    ${CREDS_BIN} get {name}             -- Get the credentials named "name"
-    ${CREDS_BIN} exists {name}          -- Check if the credentials named "name" exist
-    ${CREDS_BIN} git ...                -- Run some git commands in the credentials data directory
+    ${CREDS_BIN} [show] [name]          -- If a name is specified, same as get, otherwise, same as tree
+    ${CREDS_BIN} tree [name]            -- Display a tree of the credentials stored under "name/"
+    ${CREDS_BIN} find {pattern}         -- Find the credentials with a name matching the given pattern
+    ${CREDS_BIN} grep {pattern}         -- Find the credentials with a contents (uesrname or password) matching the given pattern
+    [... |] ${CREDS_BIN} add {name}     -- If piped, same as add-raw, otherwise create new credentials under the specified name
+    [... |] ${CREDS_BIN} add-raw {name} -- Save new raw data under the specified name (pipe needed for multiline)
+    ${CREDS_BIN} generate {name} {size} -- Generate a new password with the given size and save it under the specified name
+    ${CREDS_BIN} edit {name}            -- Change the username and the password of the credentials saved under the specified name
+    ${CREDS_BIN} rm {name}              -- Delete the credentials saved under the specified name
+    ${CREDS_BIN} cp {name} {new}        -- Make a copy of the credentials saved under the specified name and save it under the new name
+    ${CREDS_BIN} mv {name} {new}        -- Rename the credentials saved under the specified name to the new name
+    ${CREDS_BIN} get {name}             -- Get the credentials saved under the specified name
+    ${CREDS_BIN} exists {name}          -- Check whether same credentials have been saved under the specified name
+    ${CREDS_BIN} git ...                -- Run a git command inside the directory in which credentials are stored
     ${CREDS_BIN} restore {giturl}       -- Restore the creds database from this git url (alias for ${CREDS_BIN} git clone)
-    ${CREDS_BIN} gpg-ids [id ...]       -- Display the configure gpg-ids to use or set it
-    ${CREDS_BIN} version                -- Display the version number
-    ${CREDS_BIN} help                   -- Display this message
+    ${CREDS_BIN} gpg-ids [id ...]       -- Display or set the gpg ids used to encrypt the credentials we store
+    ${CREDS_BIN} version                -- Display the version
+    ${CREDS_BIN} help                   -- Display the help
 EOF
 }
 
