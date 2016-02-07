@@ -16,6 +16,10 @@ EXTRA_DIST +=                        \
 	$(dist_man1_MANS:.1=.xml.in) \
 	$(NULL)
 
+CLEANFILES +=             \
+	$(dist_man1_MANS) \
+	$(NULL)
+
 SUFFIXES += .1 .xml
 .xml.1:
 	@ if test -z "$(XSLTPROC)"; then                    \
