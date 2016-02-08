@@ -29,6 +29,6 @@ Steps to install it after cloning (skip the `./autogen.sh` part if you're buildi
 
 You can see everything I'll post about reds [there](http://www.imagination-land.org/tags/creds.html).
 
-Latest release is: [creds 1](http://www.imagination-land.org/posts/2016-02-07-creds-1-released.html).
+Latest release is: [creds 2](http://www.imagination-land.org/posts/2016-02-08-creds-2-released.html).
 
-Direct link to download: <http://www.imagination-land.org/files/creds/creds-1.tar.xz>
+Direct link to download: <http://www.imagination-land.org/files/creds/creds-2.tar.xz>

@@ -1,5 +1,7 @@
-NEW in 2 (Not released yet)
+NEW in 2 (2016/02/07)
 =============
+
+- add: don't act as add-raw when piped (regression in pass2creds)
 
 NEW in 1 (2016/02/07)
 =============
