@@ -51,7 +51,7 @@ Usage:
     ${CREDS_BIN} tree [name]            -- Display a tree of the credentials stored under "name/"
     ${CREDS_BIN} find {pattern}         -- Find the credentials with a name matching the given pattern
     ${CREDS_BIN} grep {pattern}         -- Find the credentials with a contents (uesrname or password) matching the given pattern
-    [... |] ${CREDS_BIN} add {name}     -- If piped, same as add-raw, otherwise create new credentials under the specified name
+    [... |] ${CREDS_BIN} add {name}     -- Create new credentials under the specified name
     [... |] ${CREDS_BIN} add-raw {name} -- Save new raw data under the specified name (pipe needed for multiline)
     ${CREDS_BIN} generate {name} {size} -- Generate a new password with the given size and save it under the specified name
     ${CREDS_BIN} edit {name}            -- Change the username and the password of the credentials saved under the specified name
@@ -273,7 +273,7 @@ creds_write_credentials() {
     local username
     local password
 
-    if [[ "${action}" == "${CREDS_ADD_RAW}" ]] || creds_is_piped; then
+    if [[ "${action}" == "${CREDS_ADD_RAW}" ]]; then
         # Add a special token as the username, and store the data as the password
         username="${CREDS_ADD_RAW}"
         if creds_is_piped; then
