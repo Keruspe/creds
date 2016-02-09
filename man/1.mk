@@ -20,7 +20,12 @@ CLEANFILES +=             \
 	$(dist_man1_MANS) \
 	$(NULL)
 
-SUFFIXES += .1 .xml
+SUFFIXES += .1 .xml .xml.in
+.xml.in.xml:
+	@ $(MKDIR_P) $(@D)
+	$(AM_V_GEN) $(SED)                                    \
+	    -e 's,[@]PACKAGE_VERSION[@],$(PACKAGE_VERSION),g' \
+	    <$< >$@
 .xml.1:
 	@ if test -z "$(XSLTPROC)"; then                    \
 	    echo "xsltproc is required to build man pages"; \
