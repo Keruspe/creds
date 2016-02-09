@@ -13,7 +13,7 @@ readonly CREDS_TOP_LABEL="Credentials"
 readonly CREDS_ADD_RAW="Add raw"
 readonly CREDS_REENCRYPT="Reencrypt everything"
 
-readonly CREDS_GPG_ARGS=( --batch -q --yes --no-encrypt-to --compress-algo=bzip2 )
+readonly CREDS_GPG_ARGS=( --batch -q --yes --no-encrypt-to --compress-algo=bzip2 ${CREDS_GPG_ARGS[@]:-} )
 
 creds_stacktrace() {
     local count=0
