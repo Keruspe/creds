@@ -34,3 +34,12 @@ You can see everything I'll post about reds [there](http://www.imagination-land.
 Latest release is: [creds 2](http://www.imagination-land.org/posts/2016-02-08-creds-2-released.html).
 
 Direct link to download: <http://www.imagination-land.org/files/creds/creds-2.tar.xz>
+
+Troubleshooting
+---------------
+
+- `creds` fails with the error
+
+        gpg: 853120A2: There is no assurance this key belongs to the named user
+        gpg: [stdin]: encryption failed: unusable public key
+    Your key isn't signed. You can either sign it or set the environment variable `CREDS_GPG_ARGS` to `--trust-model always`
