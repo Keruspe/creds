@@ -35,6 +35,10 @@ creds_die() {
     exit "${ret}"
 }
 
+creds_not_empty() {
+    ls -A "${CREDS_DIR}"/* &>/dev/null
+}
+
 creds_abort() {
     creds_die 0 "Aborting"
 }
@@ -539,7 +543,9 @@ creds_gpg_ids() {
                 echo "${gpg_id}"
             done > "${CREDS_GPG_IDS}"
 
-            creds_reencrypt_everything
+            if creds_not_empty; then
+                creds_reencrypt_everything
+            fi
             ;;
     esac
 }
@@ -591,15 +597,17 @@ creds_grep() {
     local pattern="${1}"
     local file
 
-    pushd "${CREDS_DIR}" &>/dev/null
+    if creds_not_empty; then
+        pushd "${CREDS_DIR}" &>/dev/null
 
-    while read -r -d '' file; do
-        if creds_run_gpg -d "${file}" | grep -q "${pattern}"; then
-            echo "${file/.creds}"
-        fi
-    done < <(find -- * -name '*.creds' -print0)
+        while read -r -d '' file; do
+            if creds_run_gpg -d "${file}" | grep -q "${pattern}"; then
+                echo "${file/.creds}"
+            fi
+        done < <(find -- * -name '*.creds' -print0)
 
-    popd &>/dev/null
+        popd &>/dev/null
+    fi
 }
 
 main() {
