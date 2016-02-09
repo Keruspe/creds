@@ -1,7 +1,11 @@
-NEW in 3 (Not released yet)
+NEW in 3 (2016/02/09)
 =============
 
-NEW in 2 (2016/02/07)
+- don't require xsltproc and docbook-xsl when building a release
+- support CREDS_GPG_ARGS environment variable to pass additional args to gpg
+- don't crash on some commands when we do not have anything stored yet
+
+NEW in 2 (2016/02/08)
 =============
 
 - add: don't act as add-raw when piped (regression in pass2creds)

@@ -35,7 +35,7 @@ creds_die() {
     exit "${ret}"
 }
 
-creds_not_empty() {
+creds_store_not_empty() {
     ls -A "${CREDS_DIR}"/* &>/dev/null
 }
 
@@ -543,7 +543,7 @@ creds_gpg_ids() {
                 echo "${gpg_id}"
             done > "${CREDS_GPG_IDS}"
 
-            if creds_not_empty; then
+            if creds_store_not_empty; then
                 creds_reencrypt_everything
             fi
             ;;
@@ -597,7 +597,7 @@ creds_grep() {
     local pattern="${1}"
     local file
 
-    if creds_not_empty; then
+    if creds_store_not_empty; then
         pushd "${CREDS_DIR}" &>/dev/null
 
         while read -r -d '' file; do
