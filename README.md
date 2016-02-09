@@ -19,6 +19,8 @@ Dependencies:
 - `gpaste` (optional, integration of `creds get`)
 - `git` (optional, for `creds git`)
 - `pwgen` (optional, for `creds generate`)
+- `xsltproc` (required to build from a git clone)
+- `docbook-xsl` (required to build from a git clone)
 
 Steps to install it after cloning (skip the `./autogen.sh` part if you're building it from a tarball):
 
