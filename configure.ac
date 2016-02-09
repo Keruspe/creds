@@ -1,6 +1,6 @@
 # Copyright (c) 2016, Marc-Antoine Perennou <Marc-Antoine@Perennou.com>
 
-m4_define([creds_version], [2])
+m4_define([creds_version], [3])
 
 # Build system requirements
 m4_define([autoconf_required], [2.69])
