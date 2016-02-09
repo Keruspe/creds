@@ -37,10 +37,8 @@ AS_IF([test x${enable_zsh_completion} = xyes], [
     CREDS_WITH([zshcompletiondir], [Zsh completion directory], ['${datadir}/zsh/site-functions'])
 ])
 
-AC_CONFIG_FILES([
-    Makefile
-    src/bin/creds
-], [chmod +x src/bin/creds])
+AC_CONFIG_FILES([Makefile])
+AC_CONFIG_FILES([src/bin/creds], [chmod +x src/bin/creds])
 AC_OUTPUT
 AC_MSG_RESULT([
     $PACKAGE_NAME $VERSION
